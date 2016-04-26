@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+# export the path to be sure it's set properly
+export PATH="/opt/local/sbin:/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/gonano/sbin:/opt/gonano/bin"
+
+# command to run narc
+exec /opt/gonano/bin/narcd /opt/gonano/etc/narc.conf

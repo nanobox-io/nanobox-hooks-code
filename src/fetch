@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+# Fetch the deploy environment and live source code
+#
+# 1 - fetch deploy env
+# 2 - fetch live source code
+
+# hookit is installed as a bundled app, so we need bundler to load it for us
+$:.unshift  '/opt/gonano/hookit/vendor/bundle'
+require 'bundler/setup'
+
+# load hookit/setup to bootstrap hookit and import the dsl
+require 'hookit/setup'
+
+# import some logic/helpers from lib/*.rb
+include Nanobox::Engine
+
+# 1 - Download deploy environment
+directory "#{DATA_DIR}" do
+  owner 'gonano'
+  group 'gonano'
+end
+
+execute "fetch and extract deploy" do
+  command <<-EOF
+    curl \
+      -k \
+      -H "x-auth-token: #{payload[:warehouse_token]}" \
+      https://#{payload[:warehouse]}:7410/blobs/deploy-#{payload[:build]}.tgz \
+        | tar \
+          -xzf \
+          - \
+          -C #{DATA_DIR}
+  EOF
+end
+
+execute "ensure gonano owns data" do
+  command "chown -R gonano:gonano #{DATA_DIR}"
+end
+
+# 2 - Download live code
+directory "#{CODE_DIR}" do
+  owner 'gonano'
+  group 'gonano'
+end
+
+execute "fetch and extract app" do
+  command <<-EOF
+    curl \
+      -k \
+      -H "x-auth-token: #{payload[:warehouse_token]}" \
+      https://#{payload[:warehouse]}:7410/blobs/app-#{payload[:build]}.tgz \
+        | tar \
+          -xzf \
+          - \
+          -C #{CODE_DIR}
+  EOF
+end
+
+execute "ensure gonano owns code" do
+  command "chown -R gonano:gonano #{CODE_DIR}"
+end

@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+# create the log directory if it doesn't exist
+[ -d /var/log/gonano/<%= key %> ] || mkdir -p /var/log/gonano/<%= key %>
+
+# tell svlogd to drop the stdout into our custom location
+cd /var/log/gonano/<%= key %>
+exec svlogd -v -ttt /var/log/gonano/<%= key %>

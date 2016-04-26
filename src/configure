@@ -1,0 +1,144 @@
+#!/usr/bin/env ruby
+
+# Configure the web or worker environment to run the app
+#
+# 1 - Generate narc.conf
+# 2 - Set all environment variables
+# 3 - Run transforms
+# 4 - Convert to read-only
+# 5 - Unset 'writable_dirs' from read-only
+# 6 - Mount network_dirs
+
+# hookit is installed as a bundled app, so we need bundler to load it for us
+$:.unshift  '/opt/gonano/hookit/vendor/bundle'
+require 'bundler/setup'
+
+# load hookit/setup to bootstrap hookit and import the dsl
+require 'hookit/setup'
+
+# import some logic/helpers from lib/*.rb
+include Nanobox::Engine
+
+# 1 - Generate narc.conf
+template '/opt/gonano/etc/narc.conf' do
+  variables ({
+    uid: payload[:component][:uid],
+    logvac: payload[:logvac_host],
+    watches: payload[:log_watches] || {},
+    start_cmds: start_cmds
+  })
+end
+
+# 2 - Set all environment variables
+(payload[:env] || {}).each do |key, value|
+  file "#{ENV_DIR}/#{key}" do
+    content value
+    owner 'gonano'
+    group 'gonano'
+    mode 0444
+  end
+end
+
+# 3 - Run any transformations
+(payload[:transform] || []).each_with_index do |command, index|
+  execute "transform hook #{index + 1}" do
+    command "#{command}"
+    cwd CODE_DIR
+    path GONANO_PATH
+    user 'gonano'
+    stream true
+    on_data {|data| print data}
+  end
+end
+
+# 4 - Convert to read-only
+execute 'lock down all the files' do
+  command "chmod -R a-w #{CODE_DIR}"
+end
+
+# 5 - Unset writable dirs
+(payload[:writable_dirs] || []).each do |dir|
+  execute "undo read-only on #{dir}" do
+    command "chmod -R +w #{CODE_DIR}/#{dir}"
+  end
+end
+
+# 6 - Mount network dirs
+(payload[:mounts] || []).each do |m|
+
+  # First we create a raw mount, which is used only in the event
+  # that the share is actually a file. If it's a file, we'll link
+  # it to the destination instead if a direct mount. (later)
+
+  # create source directory if doesn't exist
+  directory "/mnt/#{m[:component]}" do
+    owner 'gonano'
+    group 'gonano'
+    recursive true
+  end
+
+  if m[:protocol] == "nfs"
+    mount "mount #{m[:component]}" do
+      mount_point "/mnt/#{m[:component]}"
+      device "#{m[:host]}:/data/var/db/unfs"
+      options "rw,intr,proto=tcp,vers=3,nolock"
+      fstype "nfs"
+      action :mount
+      not_if  { `mount | grep -c /mnt/#{m[:component]}`.to_i > 0 }
+    end
+  end
+
+  (m[:shares] || []).each do |share|
+    # check to see if the mountpoint is an existing file
+    if ::File.exist? "#{CODE_DIR}/#{share}" and not ::File.directory? "#{CODE_DIR}/#{share}"
+      # copy the original file onto the mountpoint if it doesn't already exist
+      if not ::File.exist? "/mnt/#{m[:component]}/#{share}"
+
+        # ensure the parent directory already exists
+        directory "/mnt/#{m[:component]}#{::File.dirname "/#{share}"}" do
+          recursive true
+          owner 'gonano'
+          group 'gonano'
+        end
+
+        # copy the file
+        execute "copy original file from source into network store" do
+          command "cp -f #{CODE_DIR}/#{share} /mnt/#{m[:component]}/#{share}"
+          user 'gonano'
+        end
+
+        # create a link back to the network-backed file
+        link "#{CODE_DIR}/#{share}" do
+          to "/mnt/#{m[:component]}/#{share}"
+          owner 'gonano'
+          group 'gonano'
+        end
+
+      end
+
+    else
+      directory "/mnt/#{m[:component]}/#{share}" do
+        recursive true
+        owner 'gonano'
+        group 'gonano'
+      end
+
+      # Create mountpoint
+      directory "#{CODE_DIR}/#{share}" do
+        recursive true
+        owner 'gonano'
+        group 'gonano'
+      end
+
+      mount "mount #{m[:component]}" do
+        mount_point "#{CODE_DIR}/#{share}"
+        device "#{m[:host]}:/data/var/db/unfs/#{share}"
+        options "rw,intr,proto=tcp,vers=3,nolock"
+        fstype "nfs"
+        action :enable, :mount
+        not_if  { `mount | grep -c #{CODE_DIR}/#{share}`.to_i > 0 }
+      end
+
+    end
+  end
+end

@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+# Stop the app
+#
+# 1 - Stop app; Remove sv definitions for app start
+# 2 - Stop narc; Remove sv definitions for narc
+
+# hookit is installed as a bundled app, so we need bundler to load it for us
+$:.unshift  '/opt/gonano/hookit/vendor/bundle'
+require 'bundler/setup'
+
+# load hookit/setup to bootstrap hookit and import the dsl
+require 'hookit/setup'
+
+# import some logic/helpers from lib/*.rb
+include Nanobox::Engine
+
+# 1 - Stop app; Remove sv definitions for app start
+start_cmds.each do |key, cmd|
+
+  service key do
+    action :disable
+  end
+
+  directory "/etc/service/#{key}" do
+    action :delete
+  end
+
+end
+
+# 2 - Stop narc; Remove sv definitions for narc
+service 'narc' do
+  action :disable
+end
+
+directory '/etc/service/narc' do
+  action :delete
+end

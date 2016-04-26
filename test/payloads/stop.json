@@ -1,0 +1,4 @@
+{
+  "config": {},
+  "start": "node server.js"
+}

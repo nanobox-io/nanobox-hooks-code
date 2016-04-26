@@ -1,0 +1,80 @@
+#!/usr/bin/env ruby
+
+# Start the app
+#
+# 1 - Import sv definitions for narc; start narc
+# 2 - Import sv definitions for app start; start app
+
+# hookit is installed as a bundled app, so we need bundler to load it for us
+$:.unshift  '/opt/gonano/hookit/vendor/bundle'
+require 'bundler/setup'
+
+# load hookit/setup to bootstrap hookit and import the dsl
+require 'hookit/setup'
+
+# import some logic/helpers from lib/*.rb
+include Nanobox::Engine
+
+# 1 - Import sv definitions for narc; start narc
+
+# create the runit definitions for narc
+directory '/etc/service/narc' do
+  recursive true
+end
+
+directory '/etc/service/narc/log' do
+  recursive true
+end
+
+hook_file '/etc/service/narc/log/run' do
+  source 'runit/narc-log'
+  mode 0755
+end
+
+hook_file '/etc/service/narc/run' do
+  source 'runit/narc'
+  mode 0755
+end
+
+service 'narc' do
+  action :enable
+end
+
+# 2 - Import sv definitions for app start; start app
+
+start_cmds.each do |key, cmd|
+
+  # create the runit definition
+  directory "/etc/service/#{key}" do
+    recursive true
+  end
+
+  directory "/etc/service/#{key}/log" do
+    recursive true
+  end
+
+  template "/etc/service/#{key}/log/run" do
+    source 'runit/app-log.erb'
+    variables ({
+      key: key,
+      command: cmd
+    })
+    mode 0755
+  end
+
+  template "/etc/service/#{key}/run" do
+    source 'runit/app.erb'
+    variables ({
+      key: key,
+      command: cmd,
+      env_dir: ENV_DIR,
+      code_dir: CODE_DIR
+    })
+    mode 0755
+  end
+
+  service key do
+    action :enable
+  end
+
+end
