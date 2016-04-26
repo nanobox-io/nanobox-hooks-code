@@ -12,7 +12,7 @@ run_hook() {
   payload=$2
 
   docker exec \
-    $container \
+    code \
     /opt/nanobox/hooks/$hook "$payload"
 }
 

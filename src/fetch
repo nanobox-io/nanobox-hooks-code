@@ -39,7 +39,7 @@ execute "ensure gonano owns data" do
 end
 
 # 2 - Download live code
-directory "#{CODE_DIR}" do
+directory "#{APP_DIR}" do
   owner 'gonano'
   group 'gonano'
 end
@@ -53,10 +53,10 @@ execute "fetch and extract app" do
         | tar \
           -xzf \
           - \
-          -C #{CODE_DIR}
+          -C #{APP_DIR}
   EOF
 end
 
 execute "ensure gonano owns code" do
-  command "chown -R gonano:gonano #{CODE_DIR}"
+  command "chown -R gonano:gonano #{APP_DIR}"
 end

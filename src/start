@@ -68,7 +68,7 @@ start_cmds.each do |key, cmd|
       key: key,
       command: cmd,
       env_dir: ENV_DIR,
-      code_dir: CODE_DIR
+      code_dir: APP_DIR
     })
     mode 0755
   end

@@ -20,8 +20,8 @@ module Nanobox
     # application in the live environment
     ENV_DIR = "#{DATA_DIR}/etc/env.d"
 
-    # The CODE_DIR contains the compiled app
-    CODE_DIR = '/code'
+    # The APP_DIR contains the compiled app
+    APP_DIR = '/app'
 
     GONANO_PATH = [
       "#{DATA_DIR}/sbin",

@@ -43,7 +43,7 @@ end
 (payload[:transform] || []).each_with_index do |command, index|
   execute "transform hook #{index + 1}" do
     command "#{command}"
-    cwd CODE_DIR
+    cwd APP_DIR
     path GONANO_PATH
     user 'gonano'
     stream true
@@ -53,13 +53,13 @@ end
 
 # 4 - Convert to read-only
 execute 'lock down all the files' do
-  command "chmod -R a-w #{CODE_DIR}"
+  command "chmod -R a-w #{APP_DIR}"
 end
 
 # 5 - Unset writable dirs
 (payload[:writable_dirs] || []).each do |dir|
   execute "undo read-only on #{dir}" do
-    command "chmod -R +w #{CODE_DIR}/#{dir}"
+    command "chmod -R +w #{APP_DIR}/#{dir}"
   end
 end
 
@@ -90,7 +90,7 @@ end
 
   (m[:shares] || []).each do |share|
     # check to see if the mountpoint is an existing file
-    if ::File.exist? "#{CODE_DIR}/#{share}" and not ::File.directory? "#{CODE_DIR}/#{share}"
+    if ::File.exist? "#{APP_DIR}/#{share}" and not ::File.directory? "#{APP_DIR}/#{share}"
       # copy the original file onto the mountpoint if it doesn't already exist
       if not ::File.exist? "/mnt/#{m[:component]}/#{share}"
 
@@ -103,12 +103,12 @@ end
 
         # copy the file
         execute "copy original file from source into network store" do
-          command "cp -f #{CODE_DIR}/#{share} /mnt/#{m[:component]}/#{share}"
+          command "cp -f #{APP_DIR}/#{share} /mnt/#{m[:component]}/#{share}"
           user 'gonano'
         end
 
         # create a link back to the network-backed file
-        link "#{CODE_DIR}/#{share}" do
+        link "#{APP_DIR}/#{share}" do
           to "/mnt/#{m[:component]}/#{share}"
           owner 'gonano'
           group 'gonano'
@@ -124,19 +124,19 @@ end
       end
 
       # Create mountpoint
-      directory "#{CODE_DIR}/#{share}" do
+      directory "#{APP_DIR}/#{share}" do
         recursive true
         owner 'gonano'
         group 'gonano'
       end
 
       mount "mount #{m[:component]}" do
-        mount_point "#{CODE_DIR}/#{share}"
+        mount_point "#{APP_DIR}/#{share}"
         device "#{m[:host]}:/data/var/db/unfs/#{share}"
         options "rw,intr,proto=tcp,vers=3,nolock"
         fstype "nfs"
         action :enable, :mount
-        not_if  { `mount | grep -c #{CODE_DIR}/#{share}`.to_i > 0 }
+        not_if  { `mount | grep -c #{APP_DIR}/#{share}`.to_i > 0 }
       end
 
     end
