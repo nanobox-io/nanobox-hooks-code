@@ -15,8 +15,11 @@ require 'hookit/setup'
 # import some logic/helpers from lib/*.rb
 include Nanobox::Engine
 
+logger = NanoBox::Logvac.new(host: payload[:logvac_host], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[before_deploy]")
+
 # 1 - Stop app; Remove sv definitions for app start
 start_cmds.each do |key, cmd|
+  logger.puts("Stopping #{key}: #{cmd}...")
 
   service key do
     action :disable
@@ -29,6 +32,7 @@ start_cmds.each do |key, cmd|
 end
 
 # 2 - Stop narc; Remove sv definitions for narc
+logger.puts("Stopping logging service...")
 service 'narc' do
   action :disable
 end

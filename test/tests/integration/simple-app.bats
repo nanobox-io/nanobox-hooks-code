@@ -78,6 +78,18 @@
   [ "$output" = "Node.js - Express - Hello World!" ]
 }
 
+@test "Run before deploy hook" {
+  run run_hook "before_deploy" "$(payload before_deploy)"
+  echo "$output"
+  [ "$status" -eq 0 ]
+}
+
+@test "Run after deploy hook" {
+  run run_hook "before_deploy" "$(payload before_deploy)"
+  echo "$output"
+  [ "$status" -eq 0 ]
+}
+
 @test "Run stop hook" {
   run run_hook "stop" "$(payload stop)"
   echo "$output"

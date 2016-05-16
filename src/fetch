@@ -14,8 +14,12 @@ require 'hookit/setup'
 
 # import some logic/helpers from lib/*.rb
 include Nanobox::Engine
+# require 'nanonox/logvac'
+
+logger = NanoBox::Logvac.new(host: payload[:logvac_host], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[before_deploy]")
 
 # 1 - Download deploy environment
+logger.puts("Retrieving deploy environment...")
 directory "#{DATA_DIR}" do
   owner 'gonano'
   group 'gonano'
@@ -39,6 +43,7 @@ execute "ensure gonano owns data" do
 end
 
 # 2 - Download live code
+logger.puts("Retrieving application...")
 directory "#{APP_DIR}" do
   owner 'gonano'
   group 'gonano'

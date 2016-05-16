@@ -15,8 +15,10 @@ require 'hookit/setup'
 # import some logic/helpers from lib/*.rb
 include Nanobox::Engine
 
-# 1 - Import sv definitions for narc; start narc
+logger = NanoBox::Logvac.new(host: payload[:logvac_host], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[before_deploy]")
 
+# 1 - Import sv definitions for narc; start narc
+logger.puts("Starting logging service...")
 # create the runit definitions for narc
 directory '/etc/service/narc' do
   recursive true
@@ -43,7 +45,7 @@ end
 # 2 - Import sv definitions for app start; start app
 
 start_cmds.each do |key, cmd|
-
+  logger.puts("Starting #{key}: #{cmd}...")
   # create the runit definition
   directory "/etc/service/#{key}" do
     recursive true

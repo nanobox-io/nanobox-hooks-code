@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+# hookit is installed as a bundled app, so we need bundler to load it for us
+$:.unshift  '/opt/gonano/hookit/vendor/bundle'
+require 'bundler/setup'
+
+# load hookit/setup to bootstrap hookit and import the dsl
+require 'hookit/setup'
+
+# import some logic/helpers from hookit
+include Hookit::Helper::Shell
+include Nanobox::Engine
+
+logger = NanoBox::Logvac.new(host: payload[:logvac_host], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[after_deploy]")
+
+# 'payload' is a helper function within the hookit framework that will parse
+# input provided as JSON into a hash with symbol keys.
+# https://github.com/pagodabox/hookit/blob/master/lib/hookit/hook.rb#L7-L17
+
+if payload[:member][:uid] == 1 and payload[:after_deploy]
+  payload[:after_deploy].each_with_index do |cmd, index|
+    run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "after_deploy", logger)
+  end
+end
+
+if payload[:after_deploy_all]
+  payload[:after_deploy_all].each_with_index do |cmd, index|
+    run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "after_deploy_all", logger)
+  end
+end

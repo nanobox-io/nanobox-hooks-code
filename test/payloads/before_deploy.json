@@ -1,0 +1,17 @@
+{
+  "component": {
+    "uid": "web.main",
+    "id": "9097d0a7-7e02-4be5-bce1-3d7cb1189488"
+  },
+  "member": {
+    "uid": "1"
+  },
+  "before_deploy": [
+    "echo 'before deploy 1'",
+    "echo 'before deploy 2'"
+  ],
+  "before_deploy_all": [
+    "echo 'before deploy all 1'",
+    "echo 'before deploy all 2'"
+  ]
+}

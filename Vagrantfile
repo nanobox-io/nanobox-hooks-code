@@ -59,7 +59,7 @@ Vagrant.configure(2) do |config|
   # pull the build image to run tests in
   config.vm.provision "shell", inline: <<-SCRIPT
     echo "Pulling the mist image"
-    docker pull nanobox/code
+    docker pull nanobox/code:v1
   SCRIPT
 
   # fetch hoarder image for simulating warehouse

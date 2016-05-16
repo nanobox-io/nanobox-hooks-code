@@ -1,4 +1,12 @@
 {
+  "component": {
+    "uid": "web.main",
+    "id": "9097d0a7-7e02-4be5-bce1-3d7cb1189488"
+  },
+  "member": {
+    "uid": "1"
+  },
+  "logvac_host": "127.0.0.1",
   "build": "123",
   "warehouse": "192.168.0.100",
   "warehouse_token": "123"

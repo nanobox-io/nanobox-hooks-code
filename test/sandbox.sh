@@ -31,7 +31,7 @@ docker run \
   --ip=192.168.0.55 \
   --volume=${hookit_dir}/:/opt/nanobox/hooks \
   --volume=${payload_dir}/:/payloads \
-  nanobox/code
+  nanobox/code:v1
 
 # hop into the sandbox
 echo "Consoling into the sandbox..."

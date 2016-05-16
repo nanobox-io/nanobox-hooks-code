@@ -1,36 +1,18 @@
-require 'faraday'
+require 'remote_syslog_logger'
+require 'logger'
 
-module Nanobox
+module NanoBox
   class Logvac
-
+    
     def initialize(opts)
-      @logvac = opts[:logvac]
-      @token  = opts[:token]
+      @id = opts[:id]
+      @host = opts[:host] || '127.0.0.1'
+      @logger = RemoteSyslogLogger.new(@host, 514)
+      @logger.level = Logger::INFO
     end
 
-    def post(message, level='info')
-      connection.post("/") do |req|
-        req.headers['X-AUTH-TOKEN'] = @token
-        body = {}
-        body[:message] = message
-        body[:type] = "build"
-        body[:level] = level
-        body[:id] = @build
-        req.body = body.to_json
-      end
-    end
-    alias :print :post
-
-    def puts(message='', level='info')
-      post("#{message}\n", level)
-    end
-
-    protected
-
-    def connection
-      @connection ||= Faraday.new(url: "http://#{@logvac}:6361") do |faraday|
-        faraday.adapter :excon
-      end
+    def puts(message='', level=Logger::INFO, id=@id)
+      @logger.add(level, message, id)
     end
 
   end

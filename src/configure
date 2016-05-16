@@ -19,7 +19,12 @@ require 'hookit/setup'
 # import some logic/helpers from lib/*.rb
 include Nanobox::Engine
 
+logger = NanoBox::Logvac.new(host: payload[:logvac_host], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[before_deploy]")
+
+require 'timeout'
+
 # 1 - Generate narc.conf
+logger.puts("Configuring logging...")
 template '/opt/gonano/etc/narc.conf' do
   variables ({
     uid: payload[:component][:uid],
@@ -30,6 +35,7 @@ template '/opt/gonano/etc/narc.conf' do
 end
 
 # 2 - Set all environment variables
+logger.puts("Configuring environment variables...")
 (payload[:env] || {}).each do |key, value|
   file "#{ENV_DIR}/#{key}" do
     content value
@@ -40,23 +46,19 @@ end
 end
 
 # 3 - Run any transformations
-(payload[:transform] || []).each_with_index do |command, index|
-  execute "transform hook #{index + 1}" do
-    command "#{command}"
-    cwd APP_DIR
-    path GONANO_PATH
-    user 'gonano'
-    stream true
-    on_data {|data| print data}
-  end
+logger.puts("Running transform hooks...")
+(payload[:transform] || []).each_with_index do |cmd, index|
+  run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "transform_hook", logger)
 end
 
 # 4 - Convert to read-only
+logger.puts("Making code read-only...")
 execute 'lock down all the files' do
   command "chmod -R a-w #{APP_DIR}"
 end
 
 # 5 - Unset writable dirs
+logger.puts("Making writable directories writable...")
 (payload[:writable_dirs] || []).each do |dir|
   execute "undo read-only on #{dir}" do
     command "chmod -R +w #{APP_DIR}/#{dir}"
@@ -64,6 +66,7 @@ end
 end
 
 # 6 - Mount network dirs
+logger.puts("Mounting network shared directories...")
 (payload[:mounts] || []).each do |m|
 
   # First we create a raw mount, which is used only in the event
@@ -77,16 +80,26 @@ end
     recursive true
   end
 
-  if m[:protocol] == "nfs"
-    mount "mount #{m[:component]}" do
-      mount_point "/mnt/#{m[:component]}"
-      device "#{m[:host]}:/data/var/db/unfs"
-      options "rw,intr,proto=tcp,vers=3,nolock"
-      fstype "nfs"
-      action :mount
-      not_if  { `mount | grep -c /mnt/#{m[:component]}`.to_i > 0 }
+  begin 
+    Timeout::timeout(60) do
+      if m[:protocol] == "nfs"
+        mount "mount #{m[:component]}" do
+          mount_point "/mnt/#{m[:component]}"
+          device "#{m[:host]}:/data/var/db/unfs"
+          options "rw,intr,proto=tcp,vers=3,nolock"
+          fstype "nfs"
+          action :mount
+          not_if  { `mount | grep -c /mnt/#{m[:component]}`.to_i > 0 }
+        end
+      end
     end
+  rescue Timeout::Error => e
+  rescue 
+    logger.puts("Could not mount #{m[:component]}.", Logger::FATAL)
+    raise e
   end
+
+
 
   (m[:shares] || []).each do |share|
     # check to see if the mountpoint is an existing file
@@ -130,15 +143,23 @@ end
         group 'gonano'
       end
 
-      mount "mount #{m[:component]}" do
-        mount_point "#{APP_DIR}/#{share}"
-        device "#{m[:host]}:/data/var/db/unfs/#{share}"
-        options "rw,intr,proto=tcp,vers=3,nolock"
-        fstype "nfs"
-        action :enable, :mount
-        not_if  { `mount | grep -c #{APP_DIR}/#{share}`.to_i > 0 }
+      begin 
+        Timeout::timeout(60) do
+          if m[:protocol] == "nfs"
+            mount "mount #{m[:component]}" do
+              mount_point "#{APP_DIR}/#{share}"
+              device "#{m[:host]}:/data/var/db/unfs/#{share}"
+              options "rw,intr,proto=tcp,vers=3,nolock"
+              fstype "nfs"
+              action :enable, :mount
+              not_if  { `mount | grep -c #{APP_DIR}/#{share}`.to_i > 0 }
+            end
+          end
+        end
+      rescue Timeout::Error => e
+        logger.puts("Could not mount #{share}.", Logger::FATAL)
+        raise e
       end
-
     end
   end
 end
