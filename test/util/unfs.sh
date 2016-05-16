@@ -32,7 +32,7 @@ stop_unfs() {
 unfs_configure_payload() {
   cat <<-END
 {
-  "logvac_host": "127.0.0.1",
+  "logvac_host": "192.168.0.102",
   "platform": "local",
   "config": {
   },

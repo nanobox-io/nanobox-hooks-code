@@ -74,6 +74,18 @@ Vagrant.configure(2) do |config|
     docker pull nanobox/unfs
   SCRIPT
 
+  # fetch logvac image for simulating logs
+  config.vm.provision "shell", inline: <<-SCRIPT
+    echo "Fetching image for logvac..."
+    docker pull nanobox/logvac
+  SCRIPT
+
+  # fetch mist image for simulating logs
+  config.vm.provision "shell", inline: <<-SCRIPT
+    echo "Fetching image for mist..."
+    docker pull nanobox/mist
+  SCRIPT
+
   # create an adhoc network
   config.vm.provision "shell", inline: <<-SCRIPT
     if [[ ! `docker network ls | grep nanobox` ]]; then

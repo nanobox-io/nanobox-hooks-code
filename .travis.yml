@@ -11,5 +11,7 @@ before_install:
   - docker pull nanobox/code:v1
   - docker pull nanobox/hoarder
   - docker pull nanobox/unfs
+  - docker pull nanobox/logvac
+  - docker pull nanobox/mist
 
 script: sudo test/run_all.sh

@@ -1,58 +1,38 @@
-# utilities and helpers for launching a warehouse for data storage
+# utilities and helpers for launching a mist for data storage
 
 util_dir="$(dirname $(readlink -f $BASH_SOURCE))"
 tarballs_dir=$(readlink -f ${util_dir}/../tarballs)
 
-start_warehouse() {
+start_mist() {
   # launch container
   docker run \
-    --name=warehouse \
+    --name=mist \
     -d \
     --privileged \
     --net=nanobox \
-    --ip=192.168.0.100 \
+    --ip=192.168.0.103 \
     --volume=${tarballs_dir}/:/tarballs \
-    nanobox/hoarder
+    nanobox/mist
 
   # configure
   docker exec \
-    warehouse \
-    /opt/nanobox/hooks/configure "$(warehouse_configure_payload)"
+    mist \
+    /opt/nanobox/hooks/configure "$(mist_configure_payload)"
 
   # start
   docker exec \
-    warehouse \
-    /opt/nanobox/hooks/start "$(warehouse_start_payload)"
+    mist \
+    /opt/nanobox/hooks/start "$(mist_start_payload)"
 
-  # upload tarballs
-  docker exec \
-    warehouse \
-    bash -c '
-      cat /tarballs/deploy-123.tgz \
-        | curl \
-            -k \
-            -H "x-auth-token: 123" \
-            https://127.0.0.1:7410/blobs/deploy-123.tgz \
-            --data-binary @-'
-
-  docker exec \
-    warehouse \
-    bash -c '
-      cat /tarballs/app-123.tgz \
-        | curl \
-            -k \
-            -H "x-auth-token: 123" \
-            https://127.0.0.1:7410/blobs/app-123.tgz \
-            --data-binary @-'
 }
 
-stop_warehouse() {
+stop_mist() {
   # destroy container
-  docker stop warehouse
-  docker rm warehouse
+  docker stop mist
+  docker rm mist
 }
 
-warehouse_configure_payload() {
+mist_configure_payload() {
   cat <<-END
 {
   "logvac_host": "192.168.0.102",
@@ -61,7 +41,7 @@ warehouse_configure_payload() {
     "token": "123"
   },
   "member": {
-    "local_ip": "192.168.0.100",
+    "local_ip": "192.168.0.103",
     "uid": "1",
     "role": "primary"
   },
@@ -83,7 +63,7 @@ warehouse_configure_payload() {
 END
 }
 
-warehouse_start_payload() {
+mist_start_payload() {
   cat <<-END
 {
   "config": {

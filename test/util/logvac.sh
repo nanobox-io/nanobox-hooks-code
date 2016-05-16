@@ -1,73 +1,54 @@
-# utilities and helpers for launching a warehouse for data storage
+# utilities and helpers for launching a logvac for data storage
 
 util_dir="$(dirname $(readlink -f $BASH_SOURCE))"
 tarballs_dir=$(readlink -f ${util_dir}/../tarballs)
 
-start_warehouse() {
+start_logvac() {
   # launch container
   docker run \
-    --name=warehouse \
+    --name=logvac \
     -d \
     --privileged \
     --net=nanobox \
-    --ip=192.168.0.100 \
+    --ip=192.168.0.102 \
     --volume=${tarballs_dir}/:/tarballs \
-    nanobox/hoarder
+    nanobox/logvac
 
   # configure
   docker exec \
-    warehouse \
-    /opt/nanobox/hooks/configure "$(warehouse_configure_payload)"
+    logvac \
+    /opt/nanobox/hooks/configure "$(logvac_configure_payload)"
 
   # start
   docker exec \
-    warehouse \
-    /opt/nanobox/hooks/start "$(warehouse_start_payload)"
-
-  # upload tarballs
-  docker exec \
-    warehouse \
-    bash -c '
-      cat /tarballs/deploy-123.tgz \
-        | curl \
-            -k \
-            -H "x-auth-token: 123" \
-            https://127.0.0.1:7410/blobs/deploy-123.tgz \
-            --data-binary @-'
-
-  docker exec \
-    warehouse \
-    bash -c '
-      cat /tarballs/app-123.tgz \
-        | curl \
-            -k \
-            -H "x-auth-token: 123" \
-            https://127.0.0.1:7410/blobs/app-123.tgz \
-            --data-binary @-'
+    logvac \
+    /opt/nanobox/hooks/start "$(logvac_start_payload)"
 }
 
-stop_warehouse() {
+stop_logvac() {
   # destroy container
-  docker stop warehouse
-  docker rm warehouse
+  docker stop logvac
+  docker rm logvac
 }
 
-warehouse_configure_payload() {
+logvac_configure_payload() {
   cat <<-END
 {
-  "logvac_host": "192.168.0.102",
+  "logvac_host": "127.0.0.1",
   "platform": "production",
   "config": {
     "token": "123"
   },
+  "mist_host": "192.168.0.103",
+  "mist_token": "123",
   "member": {
-    "local_ip": "192.168.0.100",
+    "local_ip": "192.168.0.102",
     "uid": "1",
     "role": "primary"
   },
   "component": {
-    "name": "willy-walrus",
-    "uid": "hoarder1",
+    "name": "anxious-aardvark",
+    "uid": "logvac1",
     "id": "9097d0a7-7e02-4be5-bce1-3d7cb1189488"
   },
   "ssh": {
@@ -83,7 +64,7 @@ warehouse_configure_payload() {
 END
 }
 
-warehouse_start_payload() {
+logvac_start_payload() {
   cat <<-END
 {
   "config": {
@@ -91,4 +72,12 @@ warehouse_start_payload() {
   }
 }
 END
+}
+
+logvac_check_logs() {
+  run docker exec logvac curl -k "https://192.168.0.102:6361?auth=123"
+
+  echo "$output"
+
+  [[ $output =~ $1 ]]
 }

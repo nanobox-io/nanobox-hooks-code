@@ -16,7 +16,7 @@ require 'hookit/setup'
 include Nanobox::Engine
 # require 'nanonox/logvac'
 
-logger = NanoBox::Logvac.new(host: payload[:logvac_host], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[before_deploy]")
+logger = NanoBox::Logvac.new(host: payload[:logvac_host], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[fetch]")
 
 # 1 - Download deploy environment
 logger.puts("Retrieving deploy environment...")

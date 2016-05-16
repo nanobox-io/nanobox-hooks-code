@@ -2,9 +2,19 @@
 . util/docker.sh
 . util/warehouse.sh
 . util/unfs.sh
+. util/logvac.sh
+. util/mist.sh
 
 @test "Start container" {
   start_container
+}
+
+@test "Start mist container" {
+  start_mist
+}
+
+@test "Start logvac container" {
+  start_logvac
 }
 
 @test "Start warehouse container" {
@@ -19,6 +29,8 @@
   run run_hook "fetch" "$(payload fetch)"
   echo "$output"
   [ "$status" -eq 0 ]
+
+  logvac_check_logs "Retrieving application"
 
   # verify deploy was downloaded and extracted
   run docker exec code bash -c "[ -f /data/bin/node ]"
@@ -35,6 +47,8 @@
   run run_hook "configure" "$(payload configure)"
   echo "$output"
   [ "$status" -eq 0 ]
+
+  logvac_check_logs "Configuring environment variables"
 
   # verify narc.conf
   run docker exec code bash -c "[ -f /opt/gonano/etc/narc.conf ]"
@@ -72,6 +86,8 @@
   echo "$output"
   [ "$status" -eq 0 ]
 
+  logvac_check_logs "Starting app: node server.js"
+
   # verify the app is running
   run docker exec code bash -c "curl http://127.0.0.1:8080 2>/dev/null"
   echo "$output"
@@ -82,18 +98,24 @@
   run run_hook "before_deploy" "$(payload before_deploy)"
   echo "$output"
   [ "$status" -eq 0 ]
+
+  logvac_check_logs "Finished: echo 'before deploy all 2'"
 }
 
 @test "Run after deploy hook" {
-  run run_hook "before_deploy" "$(payload before_deploy)"
+  run run_hook "after_deploy" "$(payload after_deploy)"
   echo "$output"
   [ "$status" -eq 0 ]
+
+  logvac_check_logs "Finished: echo 'after deploy all 2'"
 }
 
 @test "Run stop hook" {
   run run_hook "stop" "$(payload stop)"
   echo "$output"
   [ "$status" -eq 0 ]
+
+  logvac_check_logs "Stopping app: node server.js"
 
   # wait a few seconds to be sure
   sleep 3
@@ -114,4 +136,12 @@
 
 @test "Stop unfs container" {
   stop_unfs
+}
+
+@test "Stop logvac container" {
+  stop_logvac
+}
+
+@test "Stop mist container" {
+  stop_mist
 }
