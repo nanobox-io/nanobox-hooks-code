@@ -68,7 +68,10 @@ end
 
 # 6 - Mount network dirs
 logger.puts("Mounting network shared directories...")
+include Hookit::Helper::NFS
 (payload[:mounts] || []).each do |m|
+
+  m[:shares] = clean_writables(m[:shares])
 
   # First we create a raw mount, which is used only in the event
   # that the share is actually a file. If it's a file, we'll link

@@ -41,6 +41,11 @@
   run docker exec code bash -c "[ -f /app/server.js ]"
   echo "$output"
   [ "$status" -eq 0 ]
+
+  # verify second run doesn't break things
+  run run_hook "fetch" "$(payload fetch)"
+  echo "$output"
+  [ "$status" -eq 0 ]
 }
 
 @test "Run configure hook" {
@@ -83,6 +88,11 @@
   # verify cron
   run docker exec code bash -c "ls /opt/nanobox"
   [[ $output =~ cron ]]
+
+  # verify second run doesn't break things
+  run run_hook "configure" "$(payload configure)"
+  echo "$output"
+  [ "$status" -eq 0 ]
 }
 
 @test "Run start hook" {
@@ -96,6 +106,11 @@
   run docker exec code bash -c "curl http://127.0.0.1:8080 2>/dev/null"
   echo "$output"
   [ "$output" = "Node.js - Express - Hello World!" ]
+
+  # verify second run doesn't break things
+  run run_hook "start" "$(payload start)"
+  echo "$output"
+  [ "$status" -eq 0 ]
 }
 
 @test "Run before deploy hook" {
@@ -104,6 +119,11 @@
   [ "$status" -eq 0 ]
 
   logvac_check_logs "Finished: echo 'before deploy all 2'"
+
+  # verify second run doesn't break things
+  run run_hook "before_deploy" "$(payload before_deploy)"
+  echo "$output"
+  [ "$status" -eq 0 ]
 }
 
 @test "Run after deploy hook" {
@@ -112,6 +132,11 @@
   [ "$status" -eq 0 ]
 
   logvac_check_logs "Finished: echo 'after deploy all 2'"
+
+  # verify second run doesn't break things
+  run run_hook "after_deploy" "$(payload after_deploy)"
+  echo "$output"
+  [ "$status" -eq 0 ]
 }
 
 @test "Check logs for cron jobs" {

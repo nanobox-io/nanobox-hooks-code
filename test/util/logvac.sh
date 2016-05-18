@@ -75,7 +75,7 @@ END
 }
 
 logvac_check_logs() {
-  run docker exec logvac curl -k "https://192.168.0.102:6361?auth=123"
+  run docker exec logvac curl -s -k "https://192.168.0.102:6361?auth=123"
 
   echo "$output"
 
