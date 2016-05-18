@@ -79,6 +79,10 @@
   run docker exec code bash -c "mount | grep foo/bar"
   echo "$output"
   [ "$status" -eq 0 ]
+
+  # verify cron
+  run docker exec code bash -c "ls /opt/nanobox"
+  [[ $output =~ cron ]]
 }
 
 @test "Run start hook" {
@@ -110,6 +114,13 @@
   logvac_check_logs "Finished: echo 'after deploy all 2'"
 }
 
+@test "Check logs for cron jobs" {
+  sleep 60
+
+  logvac_check_logs "cron1"
+  logvac_check_logs "cron2"
+}
+
 @test "Run stop hook" {
   run run_hook "stop" "$(payload stop)"
   echo "$output"
@@ -124,6 +135,11 @@
   run docker exec code bash -c "ps aux | grep [n]ode"
   echo "$output"
   [ "$status" -ne 0 ]
+
+  # test double calling the stop hook
+  run run_hook "stop" "$(payload stop)"
+  echo "$output"
+  [ "$status" -eq 0 ]
 }
 
 @test "Stop container" {

@@ -7,11 +7,25 @@ payload_dir="$(readlink -f ${test_dir}/payloads)"
 util_dir="$(readlink -f ${test_dir}/util)"
 hookit_dir="$(readlink -f ${test_dir}/../src)"
 
+# source the mist helpers
+. ${util_dir}/mist.sh
+
+# source the logvac helpers
+. ${util_dir}/logvac.sh
+
 # source the warehouse helpers
 . ${util_dir}/warehouse.sh
 
 # source the unfs helpers
 . ${util_dir}/unfs.sh
+
+# spawn a mist
+echo "Launching a mist container..."
+start_mist
+
+# spawn a logvac
+echo "Launching a logvac container..."
+start_logvac
 
 # spawn a warehouse
 echo "Launching a warehouse container..."
@@ -49,5 +63,13 @@ stop_unfs
 # remove the warehouse
 echo "Destroying the warehouse container..."
 stop_warehouse
+
+# remove the logvac
+echo "Destroying the logvac container..."
+stop_logvac
+
+# remove the mist
+echo "Destroying the mist container..."
+stop_mist
 
 echo "Bye."

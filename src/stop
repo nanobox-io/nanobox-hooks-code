@@ -4,6 +4,7 @@
 #
 # 1 - Stop app; Remove sv definitions for app start
 # 2 - Stop narc; Remove sv definitions for narc
+# 3 - Stop cron; Remove sv definitions for cron
 
 # hookit is installed as a bundled app, so we need bundler to load it for us
 $:.unshift  '/opt/gonano/hookit/vendor/bundle'
@@ -23,10 +24,12 @@ start_cmds.each do |key, cmd|
 
   service key do
     action :disable
+    not_if { !Dir.exist?("/etc/service/#{key}") }
   end
 
   directory "/etc/service/#{key}" do
     action :delete
+    not_if { !Dir.exist?("/etc/service/#{key}") }
   end
 
 end
@@ -35,8 +38,23 @@ end
 logger.puts("Stopping logging service...")
 service 'narc' do
   action :disable
+  not_if { !Dir.exist?('/etc/service/narc') }
 end
 
 directory '/etc/service/narc' do
   action :delete
+  not_if { !Dir.exist?('/etc/service/narc') }
+end
+
+# 3 - Stop cron; Remove sv definitions for cron
+
+logger.puts("Stopping logging service...")
+service 'cron' do
+  action :disable
+  not_if { !Dir.exist?('/etc/service/cron') }
+end
+
+directory '/etc/service/cron' do
+  action :delete
+  not_if { !Dir.exist?('/etc/service/cron') }
 end

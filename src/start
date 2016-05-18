@@ -3,7 +3,8 @@
 # Start the app
 #
 # 1 - Import sv definitions for narc; start narc
-# 2 - Import sv definitions for app start; start app
+# 2 - Import sv definitions for cron; start cron if needed
+# 3 - Import sv definitions for app start; start app
 
 # hookit is installed as a bundled app, so we need bundler to load it for us
 $:.unshift  '/opt/gonano/hookit/vendor/bundle'
@@ -42,7 +43,18 @@ service 'narc' do
   action :enable
 end
 
-# 2 - Import sv definitions for app start; start app
+# 2 - Import sv definitions for cron; start cron if needed
+
+if Dir.exist? "/opt/nanobox/cron"
+  directory '/etc/service/cron'
+
+  hook_file '/etc/service/cron/run' do
+    source 'runit/cron'
+    mode 0755
+  end
+end
+
+# 3 - Import sv definitions for app start; start app
 
 start_cmds.each do |key, cmd|
   logger.puts("Starting #{key}: #{cmd}...")

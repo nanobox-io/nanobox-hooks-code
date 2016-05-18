@@ -37,5 +37,17 @@
   "log_watches": {
     "app[error]": "path/to/error.log"
   },
-  "start": "node server.js"
+  "start": "node server.js",
+  "cron_jobs": [
+    {
+      "id": "11234",
+      "schedule": "* * * * *",
+      "command": "bash -c 'echo hi > /tmp/test'"
+    },
+    {
+      "id": "45290",
+      "schedule": "* * * * *",
+      "command": "ls /tmp"
+    }
+  ]
 }

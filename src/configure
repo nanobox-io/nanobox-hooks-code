@@ -8,6 +8,7 @@
 # 4 - Convert to read-only
 # 5 - Unset 'writable_dirs' from read-only
 # 6 - Mount network_dirs
+# 7 - Set up cron
 
 # hookit is installed as a bundled app, so we need bundler to load it for us
 $:.unshift  '/opt/gonano/hookit/vendor/bundle'
@@ -162,4 +163,35 @@ logger.puts("Mounting network shared directories...")
       end
     end
   end
+end
+
+# 7 - Set up cron
+if payload[:member][:uid] ==  "1" && ! payload[:cron_jobs].nil?
+  include Hookit::Helper::Cron
+  include Hookit::Helper::Shell
+
+  directory '/opt/nanobox/cron/'
+
+  payload[:cron_jobs].each_with_index do |job, id|
+    template "/opt/nanobox/cron/#{job[:id]}" do
+      owner 'gonano'
+      source 'cron.erb'
+      group 'gonano'
+      mode 0755
+      variables ({
+        component_uid: payload[:component][:uid],
+        member_uid: payload[:member][:uid],
+        logvac_host: payload[:logvac_host],
+        command: escape_shell_string(job[:command]),
+        cron_id: id + 1,
+        app_dir: APP_DIR
+      })
+    end
+  end
+
+  template '/etc/crontab' do
+    mode 0644
+    variables ({ crons: payload[:cron_jobs] })
+  end
+
 end
