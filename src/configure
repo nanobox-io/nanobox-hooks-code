@@ -7,8 +7,9 @@
 # 3 - Run transforms
 # 4 - Convert to read-only
 # 5 - Unset 'writable_dirs' from read-only
-# 6 - Mount network_dirs
-# 7 - Set up cron
+# 6 - Unset log_watches from read-only
+# 7 - Mount network_dirs
+# 8 - Set up cron
 
 # hookit is installed as a bundled app, so we need bundler to load it for us
 $:.unshift  '/opt/gonano/hookit/vendor/bundle'
@@ -66,9 +67,14 @@ logger.puts("Making writable directories writable...")
   end
 end
 
-# 6 - Mount network dirs
+# 6 - Unset log_watches
+# todo
+
+# 7 - Mount network dirs
 logger.puts("Mounting network shared directories...")
 include Hookit::Helper::NFS
+
+# 8 - Mount network dirs
 (payload[:mounts] || []).each do |m|
 
   m[:shares] = clean_writables(m[:shares])
@@ -84,7 +90,7 @@ include Hookit::Helper::NFS
     recursive true
   end
 
-  begin 
+  begin
     Timeout::timeout(60) do
       if m[:protocol] == "nfs"
         mount "mount #{m[:component]}" do
@@ -98,7 +104,7 @@ include Hookit::Helper::NFS
       end
     end
   rescue Timeout::Error => e
-  rescue 
+  rescue
     logger.puts("Could not mount #{m[:component]}.", Logger::FATAL)
     raise e
   end
@@ -147,7 +153,7 @@ include Hookit::Helper::NFS
         group 'gonano'
       end
 
-      begin 
+      begin
         Timeout::timeout(60) do
           if m[:protocol] == "nfs"
             mount "mount #{m[:component]}" do
