@@ -47,6 +47,44 @@ logger.puts("Configuring environment variables...")
   end
 end
 
+# 3 - Ensure log_watches, writable_dirs, and network_dirs exist
+logger.puts("Ensuring required directories exist...")
+
+# log_watches
+(payload[:log_watches] || {}).each do |key, watch|
+  if not ::File.exists? "#{APP_DIR}/#{watch}"
+    parent = File.expand_path("..", "#{APP_DIR}/#{watch}")
+    
+    # create the parent directory
+    directory parent do
+      owner 'gonano'
+      group 'gonano'
+      recursive true
+    end
+    
+    # create the log_watch file
+    file "#{APP_DIR}/watch" do
+      owner 'gonano'
+      group 'gonano'
+      mode  0644
+    end
+  end
+end
+
+# writable_dirs
+(payload[:writable_dirs] || []).each do |dir|
+  if not ::Dir.exists? "#{APP_DIR}/#{dir}"
+    directory "#{APP_DIR}/#{dir}" do
+      owner 'gonano'
+      group 'gonano'
+      recursive true
+    end
+  end
+end
+
+# network_dirs
+# todo: is this actually necessary?
+
 # 3 - Run any transformations
 logger.puts("Running transform hooks...")
 (payload[:transform] || []).each_with_index do |cmd, index|
@@ -62,39 +100,16 @@ end
 # 5 - Unset writable dirs
 logger.puts("Making writable directories writable...")
 (payload[:writable_dirs] || []).each do |dir|
-  
-  # if the dir exists, unset permissions, otherwise just create it
-  if ::File.exists? "#{APP_DIR}/#{dir}"
-    execute "undo read-only on #{dir}" do
-      command "chmod -R +w #{APP_DIR}/#{dir}"
-    end
-  else
-    directory "#{APP_DIR}/#{dir}" do
-      owner 'gonano'
-      group 'gonano'
-      recursive true
-    end
+  execute "undo read-only on #{dir}" do
+    command "chmod -R +w #{APP_DIR}/#{dir}"
   end
 end
 
 # 6 - Unset log_watches
 logger.puts("Making log_watches writable...")
-(payload[:log_watches] || []).each do |watch|
-  
-  # unset the read-only lock on the parent so we can create the file
-  parent = File.expand_path("..", "#{APP_DIR}/#{watch}")
-  
-  # if the parent exists, unset permissions, otherwise just create it
-  if ::Dir.exists? parent
-    execute "undo read-only on #{watch}" do
-      command "chmod -R +w #{parent}"
-    end
-  else
-    directory parent do
-      owner 'gonano'
-      group 'gonano'
-      recursive true
-    end
+(payload[:log_watches] || {}).each do |key, watch|
+  execute "undo read-only on #{watch}" do
+    command "chmod -R +w #{APP_DIR}/#{watch}"
   end
 end
 
