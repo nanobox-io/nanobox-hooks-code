@@ -62,13 +62,41 @@ end
 # 5 - Unset writable dirs
 logger.puts("Making writable directories writable...")
 (payload[:writable_dirs] || []).each do |dir|
-  execute "undo read-only on #{dir}" do
-    command "chmod -R +w #{APP_DIR}/#{dir}"
+  
+  # if the dir exists, unset permissions, otherwise just create it
+  if ::File.exists? "#{APP_DIR}/#{dir}"
+    execute "undo read-only on #{dir}" do
+      command "chmod -R +w #{APP_DIR}/#{dir}"
+    end
+  else
+    directory "#{APP_DIR}/#{dir}" do
+      owner 'gonano'
+      group 'gonano'
+      recursive true
+    end
   end
 end
 
 # 6 - Unset log_watches
-# todo
+logger.puts("Making log_watches writable...")
+(payload[:log_watches] || []).each do |watch|
+  
+  # unset the read-only lock on the parent so we can create the file
+  parent = File.expand_path("..", "#{APP_DIR}/#{watch}")
+  
+  # if the parent exists, unset permissions, otherwise just create it
+  if ::Dir.exists? parent
+    execute "undo read-only on #{watch}" do
+      command "chmod -R +w #{parent}"
+    end
+  else
+    directory parent do
+      owner 'gonano'
+      group 'gonano'
+      recursive true
+    end
+  end
+end
 
 # 7 - Mount network dirs
 logger.puts("Mounting network shared directories...")
