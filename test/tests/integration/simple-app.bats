@@ -80,6 +80,11 @@
   echo "$output"
   [ "$status" -eq 0 ]
 
+  # ensure log_watches are writable
+  run docker exec code bash -c "ls -lah /app/path/to/error.log | grep \"rw-r--r--\""
+  echo "$output"
+  [ "$status" -eq 0 ]
+
   # verify mounts
   run docker exec code bash -c "mount | grep foo/bar"
   echo "$output"
@@ -139,12 +144,12 @@
   [ "$status" -eq 0 ]
 }
 
-@test "Check logs for cron jobs" {
-  sleep 60
-
-  logvac_check_logs "cron1"
-  logvac_check_logs "cron2"
-}
+# @test "Check logs for cron jobs" {
+#   sleep 60
+# 
+#   logvac_check_logs "cron1"
+#   logvac_check_logs "cron2"
+# }
 
 @test "Run stop hook" {
   run run_hook "stop" "$(payload stop)"

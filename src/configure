@@ -53,6 +53,9 @@ logger.puts("Ensuring required directories exist...")
 # log_watches
 (payload[:log_watches] || {}).each do |key, watch|
   if not ::File.exists? "#{APP_DIR}/#{watch}"
+    
+    puts "#{APP_DIR}/#{watch}"
+    puts File.expand_path("..", "#{APP_DIR}/#{watch}")
     parent = File.expand_path("..", "#{APP_DIR}/#{watch}")
     
     # create the parent directory
@@ -63,7 +66,7 @@ logger.puts("Ensuring required directories exist...")
     end
     
     # create the log_watch file
-    file "#{APP_DIR}/watch" do
+    file "#{APP_DIR}/#{watch}" do
       owner 'gonano'
       group 'gonano'
       mode  0644
