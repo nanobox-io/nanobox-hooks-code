@@ -50,7 +50,7 @@ module Nanobox
         Timeout::timeout(payload[:deploy_hook_timeout] || 60) do
           logger.puts("Starting: #{cmd}", Logger::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")
           execute "#{type}#{index + 1}: #{cmd}" do
-            command cmd
+            command "siphon --prefix '' -- bash -i -l -c \"#{escape cmd}\""
             cwd APP_DIR
             user 'gonano'
             on_data {|data| logger.puts(data, Logger::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")}
