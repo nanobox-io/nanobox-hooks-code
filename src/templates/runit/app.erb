@@ -18,7 +18,7 @@ if [ -d <%= env_dir %> ]; then
 fi
 
 # if the engine manipulated the PATH, let's append to it instead of reset
-if [[ -n $PATH ]]; then
+if [ -n $PATH ]; then
         MYPATH=${PATH}:
 fi
 
