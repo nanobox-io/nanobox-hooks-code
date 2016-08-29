@@ -5,7 +5,7 @@ tarballs_dir=$(readlink -f ${util_dir}/../tarballs)
 
 start_logvac() {
   # launch container
-  docker run \
+  run docker run \
     --name=logvac \
     -d \
     --privileged \
@@ -15,12 +15,12 @@ start_logvac() {
     nanobox/logvac
 
   # configure
-  docker exec \
+  run docker exec \
     logvac \
     /opt/nanobox/hooks/configure "$(logvac_configure_payload)"
 
   # start
-  docker exec \
+  run docker exec \
     logvac \
     /opt/nanobox/hooks/start "$(logvac_start_payload)"
 }
@@ -75,7 +75,7 @@ END
 }
 
 logvac_check_logs() {
-  run docker exec logvac curl -s -k "https://192.168.0.102:6361?auth=123"
+  run docker exec logvac curl -s -v -k -H "x-auth-token: X-USER-TOKEN=123" "https://192.168.0.102:6361/logs?X-USER-TOKEN=123"
 
   echo "$output"
 
