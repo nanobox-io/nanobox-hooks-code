@@ -40,7 +40,11 @@ module Nanobox
     def start_cmds
       if payload[:start].is_a? Hash
         payload[:start]
-      else
+      elsif payload[:start].is_a? Array
+        cmds = {}
+        payload[:start].each_index {|i|cmds[("app"+i.to_s).to_sym]=payload[:start][i]}
+        cmds
+      else # It's a string, so make it a hash
         {app: payload[:start]}
       end
     end
