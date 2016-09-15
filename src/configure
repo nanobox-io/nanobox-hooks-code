@@ -88,6 +88,12 @@ end
 # network_dirs
 # todo: is this actually necessary?
 
+# 2.9 - Convert to read-write
+logger.puts("Making code read-only...")
+execute 'unlock all the files' do
+  command "chmod -R a+w #{APP_DIR}"
+end
+
 # 3 - Run any transformations
 logger.puts("Running transform hooks...")
 (payload[:transform] || []).each_with_index do |cmd, index|
