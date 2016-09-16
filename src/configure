@@ -21,7 +21,7 @@ require 'hookit/setup'
 # import some logic/helpers from lib/*.rb
 include Nanobox::Engine
 
-logger = NanoBox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[configure]")
+logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[configure]")
 
 require 'timeout'
 
@@ -157,7 +157,7 @@ include Hookit::Helper::NFS
     end
   rescue Timeout::Error => e
   rescue
-    logger.puts("Could not mount #{m[:component]}.", NanoBox::Logvac::CRIT)
+    logger.puts("Could not mount #{m[:component]}.", Nanobox::Logvac::CRIT)
     raise e
   end
 
@@ -219,7 +219,7 @@ include Hookit::Helper::NFS
           end
         end
       rescue Timeout::Error => e
-        logger.puts("Could not mount #{share}.", NanoBox::Logvac::CRIT)
+        logger.puts("Could not mount #{share}.", Nanobox::Logvac::CRIT)
         raise e
       end
     end

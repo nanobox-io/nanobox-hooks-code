@@ -52,19 +52,19 @@ module Nanobox
     def run_deploy_hook(index, cmd, cuid, muid, type, logger)
       begin
         Timeout::timeout(payload[:deploy_hook_timeout] || 60) do
-          logger.puts("Starting: #{cmd}", NanoBox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")
+          logger.puts("Starting: #{cmd}", Nanobox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")
           execute "#{type}#{index + 1}: #{cmd}" do
             command "siphon --prefix '' -- bash -i -l -c \"#{escape cmd}\""
             cwd APP_DIR
             user 'gonano'
-            on_data {|data| logger.puts(data, NanoBox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")}
+            on_data {|data| logger.puts(data, Nanobox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")}
           end
-          logger.puts("Finished: #{cmd}", NanoBox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")
+          logger.puts("Finished: #{cmd}", Nanobox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")
         end
       rescue Hookit::Error::UnexpectedExit
-        logger.puts("There was an unexpected exit from the deploy hook", NanoBox::Logvac::ERR, "#{cuid}.#{muid}[#{type}#{index + 1}]")
+        logger.puts("There was an unexpected exit from the deploy hook", Nanobox::Logvac::ERR, "#{cuid}.#{muid}[#{type}#{index + 1}]")
       rescue Timeout::Error
-        logger.puts("The hook took longer than expected to run", NanoBox::Logvac::ERR, "#{cuid}.#{muid}[#{type}#{index + 1}]")
+        logger.puts("The hook took longer than expected to run", Nanobox::Logvac::ERR, "#{cuid}.#{muid}[#{type}#{index + 1}]")
       end
     end
 
