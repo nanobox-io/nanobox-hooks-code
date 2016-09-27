@@ -37,6 +37,15 @@ template '/opt/gonano/etc/narc.conf' do
 end
 
 # 2 - Set all environment variables
+
+# make sure the env dir exists
+directory ENV_DIR do
+  recursive true
+end
+
+# and that it's owned by gonano
+execute "chown gonano #{ENV_DIR}"
+
 logger.puts("Configuring environment variables...")
 (payload[:env] || {}).each do |key, value|
   file "#{ENV_DIR}/#{key}" do
