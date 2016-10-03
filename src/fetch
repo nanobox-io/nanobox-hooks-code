@@ -26,16 +26,15 @@ directory "#{DATA_DIR}" do
 end
 
 execute "fetch and extract deploy" do
-  command <<-EOF
-    curl \
+  command "curl \
       -k \
-      -H "x-auth-token: #{payload[:warehouse_token]}" \
+      -f \
+      -H \"x-auth-token: #{payload[:warehouse_token]}\" \
       https://#{payload[:warehouse]}:7410/blobs/deploy-#{payload[:build]}.tgz \
         | tar \
           -xzf \
           - \
-          -C #{DATA_DIR}
-  EOF
+          -C #{DATA_DIR}"
 end
 
 execute "ensure gonano owns data" do
@@ -50,16 +49,15 @@ directory "#{APP_DIR}" do
 end
 
 execute "fetch and extract app" do
-  command <<-EOF
-    curl \
+  command "curl \
       -k \
-      -H "x-auth-token: #{payload[:warehouse_token]}" \
+      -f \
+      -H \"x-auth-token: #{payload[:warehouse_token]}\" \
       https://#{payload[:warehouse]}:7410/blobs/app-#{payload[:build]}.tgz \
         | tar \
           -xzf \
           - \
-          -C #{APP_DIR}
-  EOF
+          -C #{APP_DIR}"
 end
 
 execute "ensure gonano owns code" do

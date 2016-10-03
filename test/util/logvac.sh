@@ -5,7 +5,7 @@ tarballs_dir=$(readlink -f ${util_dir}/../tarballs)
 
 start_logvac() {
   # launch container
-  run docker run \
+  docker run \
     --name=logvac \
     -d \
     --privileged \
@@ -15,12 +15,12 @@ start_logvac() {
     nanobox/logvac
 
   # configure
-  run docker exec \
+  docker exec \
     logvac \
     /opt/nanobox/hooks/configure "$(logvac_configure_payload)"
 
   # start
-  run docker exec \
+  docker exec \
     logvac \
     /opt/nanobox/hooks/start "$(logvac_start_payload)"
 }

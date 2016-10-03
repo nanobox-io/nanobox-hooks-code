@@ -26,6 +26,11 @@
 }
 
 @test "Run fetch hook" {
+  # Run fetch with a bad id
+  run run_hook "fetch" "$(payload fetch-bad)"
+  echo "$output"
+  [ "$status" -eq 1 ]
+
   run run_hook "fetch" "$(payload fetch)"
   echo "$output"
   [ "$status" -eq 0 ]
