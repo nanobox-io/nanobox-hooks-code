@@ -1,0 +1,52 @@
+{
+  "config": {},
+  "component": {
+    "uid": "web.main",
+    "id": "9097d0a7-7e02-4be5-bce1-3d7cb1189488"
+  },
+  "member": {
+    "uid": "1"
+  },
+  "mounts": [
+    {
+      "component": "data.files",
+      "host": "192.168.0.101",
+      "protocol": "nfs",
+      "shares": [
+        "/foo/bar",
+        "baz/boa"
+      ]
+    }
+  ],
+  "writable_dirs": [
+    "/node_modules/express/lib",
+    "node_modules/express/node_modules/accepts"
+  ],
+  "transform": [
+    "echo $APP_NAME > test-transform.txt",
+    "echo 'ho' > test-transform-2.txt"
+  ],
+  "env": {
+    "APP_NAME": "slippery-sloth",
+    "DATA_DB_HOST": "192.168.0.10",
+    "DATA_DB_USERS": "root gonano",
+    "DATA_DB_ROOT_PW": "secret",
+    "DATA_DB_GONANO_PW": "less-secret"
+  },
+  "log_watches": {
+    "app[error]": "path/to/error.log"
+  },
+  "start": "node server.js",
+  "cron_jobs": [
+    {
+      "id": "11234",
+      "schedule": "* * * * *",
+      "command": "bash -c 'echo hi > /tmp/test'"
+    },
+    {
+      "id": "45290",
+      "schedule": "* * * * *",
+      "command": "ls /tmp"
+    }
+  ]
+}
