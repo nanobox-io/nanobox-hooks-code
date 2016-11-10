@@ -1,0 +1,17 @@
+{
+  "component": {
+    "uid": "web.main",
+    "id": "9097d0a7-7e02-4be5-bce1-3d7cb1189488"
+  },
+  "member": {
+    "uid": "1"
+  },
+  "after_deploy": [
+    "echo 'after deploy 1'",
+    "echo 'after deploy 2'"
+  ],
+  "after_deploy_all": [
+    "echo 'after deploy all 1'",
+    "echo 'after deploy all 2'"
+  ]
+}

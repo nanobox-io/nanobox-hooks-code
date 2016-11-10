@@ -16,31 +16,37 @@ require 'hookit/setup'
 # import some logic/helpers from lib/*.rb
 include Nanobox::Engine
 
-logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[start]")
+if payload[:logvac_host]
+  logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[start]")
+else
+  logger = $stdout
+end
 
 # 1 - Import sv definitions for narc; start narc
-logger.puts("Starting logging service...")
-# create the runit definitions for narc
-directory '/etc/service/narc' do
-  recursive true
-end
+if payload[:logvac_host]
+  logger.puts("Starting logging service...")
+  # create the runit definitions for narc
+  directory '/etc/service/narc' do
+    recursive true
+  end
 
-directory '/etc/service/narc/log' do
-  recursive true
-end
+  directory '/etc/service/narc/log' do
+    recursive true
+  end
 
-hook_file '/etc/service/narc/log/run' do
-  source 'runit/narc-log'
-  mode 0755
-end
+  hook_file '/etc/service/narc/log/run' do
+    source 'runit/narc-log'
+    mode 0755
+  end
 
-hook_file '/etc/service/narc/run' do
-  source 'runit/narc'
-  mode 0755
-end
+  hook_file '/etc/service/narc/run' do
+    source 'runit/narc'
+    mode 0755
+  end
 
-service 'narc' do
-  action :enable
+  service 'narc' do
+    action :enable
+  end
 end
 
 # 2 - Import sv definitions for cron; start cron if needed

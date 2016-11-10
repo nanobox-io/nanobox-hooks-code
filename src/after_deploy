@@ -11,7 +11,11 @@ require 'hookit/setup'
 include Hookit::Helper::Shell
 include Nanobox::Engine
 
-logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[after_deploy]")
+if payload[:logvac_host]
+  logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[after_deploy]")
+else
+  logger = $stdout
+end
 
 # 'payload' is a helper function within the hookit framework that will parse
 # input provided as JSON into a hash with symbol keys.

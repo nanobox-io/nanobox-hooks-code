@@ -9,7 +9,8 @@
 # 5 - Unset 'writable_dirs' from read-only
 # 6 - Unset log_watches from read-only
 # 7 - Mount network_dirs
-# 8 - Set up cron
+# 8 - Mount network_dirs
+# 7 - Set up cron
 
 # hookit is installed as a bundled app, so we need bundler to load it for us
 $:.unshift  '/opt/gonano/hookit/vendor/bundle'
@@ -21,19 +22,25 @@ require 'hookit/setup'
 # import some logic/helpers from lib/*.rb
 include Nanobox::Engine
 
-logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[configure]")
+if payload[:logvac_host]
+  logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[configure]")
+else
+  logger = $stdout
+end
 
 require 'timeout'
 
 # 1 - Generate narc.conf
-logger.puts("Configuring logging...")
-template '/opt/gonano/etc/narc.conf' do
-  variables ({
-    uid: payload[:component][:uid],
-    logvac: payload[:logvac_host],
-    watches: payload[:log_watches] || {},
-    start_cmds: start_cmds
-  })
+if payload[:logvac_host]
+  logger.puts("Configuring logging...")
+  template '/opt/gonano/etc/narc.conf' do
+    variables ({
+      uid: payload[:component][:uid],
+      logvac: payload[:logvac_host],
+      watches: payload[:log_watches] || {},
+      start_cmds: start_cmds
+    })
+  end
 end
 
 # 2 - Set all environment variables
