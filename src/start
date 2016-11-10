@@ -23,7 +23,7 @@ else
 end
 
 # 1 - Import sv definitions for narc; start narc
-if payload[:logvac_host]
+if File.exist?('/opt/gonano/etc/narc.conf')
   logger.puts("Starting logging service...")
   # create the runit definitions for narc
   directory '/etc/service/narc' do
