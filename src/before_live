@@ -12,7 +12,7 @@ include Hookit::Helper::Shell
 include Nanobox::Engine
 
 if payload[:logvac_host]
-  logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[before_deploy]")
+  logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[before_live]")
 else
   logger = $stdout
 end
@@ -21,14 +21,14 @@ end
 # input provided as JSON into a hash with symbol keys.
 # https://github.com/pagodabox/hookit/blob/master/lib/hookit/hook.rb#L7-L17
 
-if payload[:member][:uid] == 1 and payload[:before_deploy]
-  payload[:before_deploy].each_with_index do |cmd, index|
-    run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "before_deploy", logger)
+if payload[:member][:uid] == 1 and payload[:before_live]
+  payload[:before_live].each_with_index do |cmd, index|
+    run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "before_live", logger)
   end
 end
 
-if payload[:before_deploy_all]
-  payload[:before_deploy_all].each_with_index do |cmd, index|
-    run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "before_deploy_all", logger)
+if payload[:before_live_all]
+  payload[:before_live_all].each_with_index do |cmd, index|
+    run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "before_live_all", logger)
   end
 end

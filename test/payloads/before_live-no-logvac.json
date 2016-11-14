@@ -6,11 +6,11 @@
   "member": {
     "uid": "1"
   },
-  "after_deploy": [
+  "after_live": [
     "echo 'after deploy 1'",
     "echo 'after deploy 2'"
   ],
-  "after_deploy_all": [
+  "after_live_all": [
     "echo 'after deploy all 1'",
     "echo 'after deploy all 2'"
   ]

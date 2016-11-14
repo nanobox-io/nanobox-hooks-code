@@ -95,13 +95,13 @@
 }
 
 @test "Run before deploy hook" {
-  run run_hook "before_deploy" "$(payload before_deploy-no-logvac)"
+  run run_hook "before_live" "$(payload before_live-no-logvac)"
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "Run after deploy hook" {
-  run run_hook "after_deploy" "$(payload after_deploy-no-logvac)"
+  run run_hook "after_live" "$(payload after_live-no-logvac)"
   echo "$output"
   [ "$status" -eq 0 ]
 }
