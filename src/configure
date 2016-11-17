@@ -68,11 +68,15 @@ logger.puts("Ensuring required directories exist...")
 
 # log_watches
 (payload[:log_watches] || {}).each do |key, watch|
-  if not ::File.exists? "#{APP_DIR}/#{watch}"
+  true_path = watch
+  if watch[0] != "/"
+    true_path = "#{APP_DIR}/#{watch}"
+  end
+  if not ::File.exists? "#{true_path}"
     
-    puts "#{APP_DIR}/#{watch}"
-    puts File.expand_path("..", "#{APP_DIR}/#{watch}")
-    parent = File.expand_path("..", "#{APP_DIR}/#{watch}")
+    puts "#{true_path}"
+    puts File.expand_path("..", "#{true_path}")
+    parent = File.expand_path("..", "#{true_path}")
     
     # create the parent directory
     directory parent do
@@ -82,7 +86,7 @@ logger.puts("Ensuring required directories exist...")
     end
     
     # create the log_watch file
-    file "#{APP_DIR}/#{watch}" do
+    file "#{true_path}" do
       owner 'gonano'
       group 'gonano'
       mode  0644
@@ -133,8 +137,12 @@ end
 # 6 - Unset log_watches
 logger.puts("Making log_watches writable...")
 (payload[:log_watches] || {}).each do |key, watch|
+  true_path = watch
+  if watch[0] != "/"
+    true_path = "#{APP_DIR}/#{watch}"
+  end
   execute "undo read-only on #{watch}" do
-    command "chmod -R +w #{APP_DIR}/#{watch}"
+    command "chmod -R +w #{true_path}"
   end
 end
 
