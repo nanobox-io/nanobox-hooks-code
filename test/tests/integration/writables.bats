@@ -137,27 +137,27 @@
 }
 
 @test "Run before deploy hook" {
-  run run_hook "before_deploy" "$(payload before_deploy)"
+  run run_hook "before_live" "$(payload before_live)"
   echo "$output"
   [ "$status" -eq 0 ]
 
   logvac_check_logs "Finished: echo 'before deploy all 2'"
 
   # verify second run doesn't break things
-  run run_hook "before_deploy" "$(payload before_deploy)"
+  run run_hook "before_live" "$(payload before_live)"
   echo "$output"
   [ "$status" -eq 0 ]
 }
 
 @test "Run after deploy hook" {
-  run run_hook "after_deploy" "$(payload after_deploy)"
+  run run_hook "after_live" "$(payload after_live)"
   echo "$output"
   [ "$status" -eq 0 ]
 
   logvac_check_logs "Finished: echo 'after deploy all 2'"
 
   # verify second run doesn't break things
-  run run_hook "after_deploy" "$(payload after_deploy)"
+  run run_hook "after_live" "$(payload after_live)"
   echo "$output"
   [ "$status" -eq 0 ]
 }

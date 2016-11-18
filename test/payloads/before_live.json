@@ -7,11 +7,11 @@
   "member": {
     "uid": "1"
   },
-  "before_deploy": [
+  "before_live": [
     "echo 'before deploy 1'",
     "echo 'before deploy 2'"
   ],
-  "before_deploy_all": [
+  "before_live_all": [
     "echo 'before deploy all 1'",
     "echo 'before deploy all 2'"
   ]
