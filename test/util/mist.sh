@@ -42,7 +42,7 @@ mist_configure_payload() {
   },
   "member": {
     "local_ip": "192.168.0.103",
-    "uid": "1",
+    "uid": 1,
     "role": "primary"
   },
   "component": {
