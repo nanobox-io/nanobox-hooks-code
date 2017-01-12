@@ -251,7 +251,7 @@ include Hookit::Helper::NFS
 end
 
 # 7 - Set up cron
-if payload[:member][:uid] ==  "1" && ! payload[:cron_jobs].nil?
+if payload[:member][:uid] == 1 && ! payload[:cron_jobs].nil?
   include Hookit::Helper::Cron
   include Hookit::Helper::Shell
 

@@ -43,7 +43,7 @@ logvac_configure_payload() {
   "mist_token": "123",
   "member": {
     "local_ip": "192.168.0.102",
-    "uid": "1",
+    "uid": 1,
     "role": "primary"
   },
   "component": {
