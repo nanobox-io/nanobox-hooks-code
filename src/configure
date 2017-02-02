@@ -63,7 +63,7 @@ logger.puts("Configuring environment variables...")
   end
 end
 
-# 3 - Ensure log_watches, writable_dirs, and network_dirs exist
+# 3 - Ensure log_watches, writable_dirs, start_cmds, and network_dirs exist
 logger.puts("Ensuring required directories exist...")
 
 # log_watches
@@ -101,6 +101,26 @@ end
       owner 'gonano'
       group 'gonano'
       recursive true
+    end
+  end
+end
+
+# start_cmds (log file must be present prior to narc start, otherwise logs will be missing)
+start_cmds.each do |key, cmd| # todo: have ruby guy refactor to remove un-needed `cmd` bit
+  log_path = "/var/log/gonano/${key}/current"
+  if not ::File.exists? "#{log_path}"
+    puts "#{log_path}"
+    puts File.expand_path("..", "#{log_path}")
+    parent = File.expand_path("..", "#{log_path}")
+
+    # create the parent directory (directory and file can be owned by root, since runsv is run by root)
+    directory parent do
+      recursive true
+    end
+
+    # create the start_cmd log file
+    file "#{log_path}" do
+      mode  0644
     end
   end
 end
