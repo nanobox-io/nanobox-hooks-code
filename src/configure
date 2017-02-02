@@ -107,7 +107,7 @@ end
 
 # start_cmds (log file must be present prior to narc start, otherwise logs will be missing)
 start_cmds.each do |key, cmd| # todo: have ruby guy refactor to remove un-needed `cmd` bit
-  log_path = "/var/log/gonano/${key}/current"
+  log_path = "/var/log/gonano/#{key}/current"
   if not ::File.exists? "#{log_path}"
     puts "#{log_path}"
     puts File.expand_path("..", "#{log_path}")
