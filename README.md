@@ -1,4 +1,4 @@
-# nanobox-hooks-code ![Build Status Image](https://travis-ci.org/nanobox-io/nanobox-hooks-code.svg)
+# nanobox-hooks-code [![Build Status Image](https://travis-ci.org/nanobox-io/nanobox-hooks-code.svg)](https://travis-ci.org/nanobox-io/nanobox-hooks-code)
 Nanobox hooks for running web and worker components.
 
 ## Publishing
