@@ -18,17 +18,17 @@ end
 
 if local_md5 != aws_md5
   execute "update hooks" do
-    command <<-END
-bash -c 'curl \
-    -f \
-    -k \
-    https://d1ormdui8qdvue.cloudfront.net/hooks/code-stable.tgz \
-      | tar -xz -C /opt/nanobox/hooks && \
-  curl \
-    -f \
-    -k \
-    -o /var/nanobox/hooks.md5 \
-    https://d1ormdui8qdvue.cloudfront.net/hooks/code-stable.md5'
-END
+    command "
+      bash -c 'curl \
+          -f \
+          -k \
+          https://d1ormdui8qdvue.cloudfront.net/hooks/code-stable.tgz \
+            | tar -xz -C /opt/nanobox/hooks && \
+        curl \
+          -f \
+          -k \
+          -o /var/nanobox/hooks.md5 \
+          https://d1ormdui8qdvue.cloudfront.net/hooks/code-stable.md5'
+"
   end
 end
