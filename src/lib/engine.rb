@@ -20,6 +20,10 @@ module Nanobox
     # application in the live environment
     ENV_DIR = "#{DATA_DIR}/etc/env.d"
 
+    # The ENV_DIR contains environment variables available to the
+    # application in the live environment
+    PROFILE_DIR = "#{DATA_DIR}/etc/profile.d"
+
     # The APP_DIR contains the compiled app
     APP_DIR = '/app'
 

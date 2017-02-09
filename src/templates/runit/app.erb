@@ -34,6 +34,14 @@ PATH=/data/sbin:/data/bin:${PATH}
 # prefix with custom path
 export PATH=${MYPATH}${PATH}
 
+# with the environment variables exported and the PATH set
+# we need to source any custom profile scripts
+if [ -d <%= profile_dir %> ]; then
+  for profile in $(/bin/ls <%= profile_dir %>); do
+    . <%= profile_dir %>/$profile
+  done
+fi
+
 # change to /code directory
 cd <%= code_dir %>
 
