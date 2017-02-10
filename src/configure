@@ -128,8 +128,8 @@ end
 # network_dirs
 # todo: is this actually necessary?
 
-# 2.9 - Convert to read-write
-logger.puts("Making code read-only...")
+# 2.9 - Convert to writable
+logger.puts("Making code writable...")
 execute 'unlock all the files' do
   command "chmod -R a+w #{APP_DIR}"
 end
