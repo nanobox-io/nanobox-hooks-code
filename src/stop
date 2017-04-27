@@ -38,6 +38,13 @@ start_cmds.each do |key, cmd|
 
 end
 
+ensure_socket 'web' do
+  interface 'eth0'
+  port '8080'
+  action :no_connections
+  max_checks 300 # todo: make variable
+end
+
 # 2 - Stop narc; Remove sv definitions for narc
 logger.puts("Stopping logging service...")
 service 'narc' do
