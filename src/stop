@@ -16,6 +16,8 @@ require 'hookit/setup'
 # import some logic/helpers from lib/*.rb
 include Nanobox::Engine
 
+require 'timeout'
+
 if payload[:logvac_host]
   logger = Nanobox::Logvac.new(host: payload[:logvac_host], hostname: payload[:component][:uid], id: "#{payload[:component][:uid]}.#{payload[:member][:uid]}[stop]")
 else
@@ -36,6 +38,10 @@ start_cmds.each do |key, cmd|
     not_if { !Dir.exist?("/etc/service/#{key}") }
   end
 
+end
+
+if ! `pgrep -U gonano`.empty?
+  `pkill -U gonano -SIGTERM`
 end
 
 ensure_socket 'web' do
@@ -68,4 +74,14 @@ end
 directory '/etc/service/cron' do
   action :delete
   not_if { !Dir.exist?('/etc/service/cron') }
+end
+
+begin
+  Timeout::timeout(60) do
+    while ! `pgrep -U gonano`.empty? do
+      sleep 1
+    end
+  end
+rescue
+  `pkill -U gonano -SIGKILL`
 end
