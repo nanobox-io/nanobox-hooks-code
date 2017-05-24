@@ -9,3 +9,8 @@ alpha:
 	@./util/publish.sh alpha
 
 all: stable
+
+.PHONY: test
+
+test:
+	stdbuf -oL test/run_all.sh

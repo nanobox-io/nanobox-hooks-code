@@ -25,7 +25,7 @@ start_container() {
     --net=nanobox \
     --ip=192.168.0.2 \
     --volume=${hookit_dir}/:/opt/nanobox/hooks \
-    nanobox/code:v1
+    nanobox/code
 }
 
 stop_container() {
