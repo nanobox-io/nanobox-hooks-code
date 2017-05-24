@@ -6,7 +6,7 @@
 # 2 - Set all environment variables
 # 3 - Run transforms
 # 4 - Convert to read-only
-# 5 - Unset 'writable_dirs' from read-only
+# 5 - Unset 'writable_dirs' and 'writable_files' from read-only
 # 6 - Unset log_watches from read-only
 # 7 - Mount network_dirs
 # 8 - Mount network_dirs
@@ -63,7 +63,7 @@ logger.puts("Configuring environment variables...")
   end
 end
 
-# 3 - Ensure log_watches, writable_dirs, start_cmds, and network_dirs exist
+# 3 - Ensure log_watches, writable_dirs, writable_files, start_cmds, and network_dirs exist
 logger.puts("Ensuring required directories exist...")
 
 # log_watches
@@ -101,6 +101,16 @@ end
       owner 'gonano'
       group 'gonano'
       recursive true
+    end
+  end
+end
+
+# writable_files
+(payload[:writable_files] || []).each do |file|
+  if not ::File.exists? "#{APP_DIR}/#{file}"
+    file "#{APP_DIR}/#{file}" do
+      owner 'gonano'
+      group 'gonano'
     end
   end
 end
@@ -151,6 +161,13 @@ logger.puts("Making writable directories writable...")
 (payload[:writable_dirs] || []).each do |dir|
   execute "undo read-only on #{dir}" do
     command "chmod -R +w #{APP_DIR}/#{dir}"
+  end
+end
+
+logger.puts("Making writable files writable...")
+(payload[:writable_files] || []).each do |file|
+  execute "undo read-only on #{file}" do
+    command "chmod -R +w #{APP_DIR}/#{file}"
   end
 end
 
