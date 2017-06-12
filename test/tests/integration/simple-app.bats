@@ -54,9 +54,14 @@
 }
 
 @test "Run configure hook" {
+  run run_hook "configure" "$(payload configure-bad-transform)"
+  echo "$output"
+  [ "$status" -eq 1 ]
+
   run run_hook "configure" "$(payload configure)"
   echo "$output"
   [ "$status" -eq 0 ]
+
 
   logvac_check_logs "Configuring environment variables"
 

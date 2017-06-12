@@ -147,7 +147,7 @@ end
 # 3 - Run any transformations
 logger.puts("Running transform hooks...")
 (payload[:transform] || []).each_with_index do |cmd, index|
-  run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "transform_hook", logger)
+  run_deploy_hook(index, cmd, payload[:component][:uid], payload[:member][:uid], "transform_hook", logger, true)
 end
 
 # 4 - Convert to read-only
