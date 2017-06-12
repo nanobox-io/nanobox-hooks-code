@@ -53,7 +53,7 @@ module Nanobox
       end
     end
 
-    def run_deploy_hook(index, cmd, cuid, muid, type, logger)
+    def run_deploy_hook(index, cmd, cuid, muid, type, logger, bubble=false)
       begin
         Timeout::timeout(payload[:deploy_hook_timeout] || 60) do
           logger.puts("Starting: #{cmd}", Nanobox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")
@@ -65,10 +65,12 @@ module Nanobox
           end
           logger.puts("Finished: #{cmd}", Nanobox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")
         end
-      rescue Hookit::Error::UnexpectedExit
+      rescue Hookit::Error::UnexpectedExit => e
         logger.puts("There was an unexpected exit from the deploy hook", Nanobox::Logvac::ERR, "#{cuid}.#{muid}[#{type}#{index + 1}]")
-      rescue Timeout::Error
+        raise e if bubble
+      rescue Timeout::Error => e
         logger.puts("The hook took longer than expected to run", Nanobox::Logvac::ERR, "#{cuid}.#{muid}[#{type}#{index + 1}]")
+        raise e if bubble
       end
     end
 
