@@ -23,6 +23,11 @@ start_unfs() {
     /opt/nanobox/hooks/start "$(unfs_start_payload)"
 }
 
+restart_unfs() {
+  # restart container
+  docker restart unfs
+}
+
 stop_unfs() {
   # destroy container
   docker stop unfs

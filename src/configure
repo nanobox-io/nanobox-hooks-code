@@ -204,6 +204,10 @@ nfs_mounts=[]
     recursive true
   end
 
+  execute "undo read-only on /mnt/#{m[:component]}" do
+    command "chmod -R +w /mnt/#{m[:component]}"
+  end
+
   begin
     Timeout::timeout(60) do
       if m[:protocol] == "nfs"
@@ -235,6 +239,7 @@ nfs_mounts=[]
           recursive true
           owner 'gonano'
           group 'gonano'
+          mode 0755
         end
 
         # copy the file
@@ -257,6 +262,7 @@ nfs_mounts=[]
         recursive true
         owner 'gonano'
         group 'gonano'
+        mode 0755
       end
 
       # Create mountpoint
@@ -264,6 +270,11 @@ nfs_mounts=[]
         recursive true
         owner 'gonano'
         group 'gonano'
+        mode 0755
+      end
+
+      execute "undo read-only on #{APP_DIR}/#{share}" do
+        command "chmod -R +w #{APP_DIR}/#{share}"
       end
 
       begin

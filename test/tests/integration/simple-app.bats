@@ -99,6 +99,12 @@
   run docker exec code bash -c "mount | grep foo/bar"
   echo "$output"
   [ "$status" -eq 0 ]
+  run docker exec code bash -c "ls -lha /app/foo/bar"
+  echo "$output"
+  [ "$status" -eq 0 ]
+  run docker exec code bash -c "touch /app/foo/bar/file1"
+  echo "$output"
+  [ "$status" -eq 0 ]
 
   # verify cron
   run docker exec code bash -c "ls /opt/nanobox"
@@ -190,6 +196,33 @@
   sleep 10
   # verify mounts
   run docker exec code bash -c "mount | grep foo/bar"
+  echo "$output"
+  [ "$status" -eq 0 ]
+  run docker exec unfs bash -c "ls -lha /data/var/db/unfs/foo/bar"
+  echo "$output"
+  [ "$status" -eq 0 ]
+  run docker exec code bash -c "ls -lha /app/foo/bar"
+  echo "$output"
+  [ "$status" -eq 0 ]
+  run docker exec code bash -c "touch /app/foo/bar/file2"
+  echo "$output"
+  [ "$status" -eq 0 ]
+}
+
+@test "Restart unfs" {
+  restart_unfs
+}
+
+@test "recheck mounts" {
+  run docker exec code bash -c "touch /app/foo/bar/file3"
+  echo "$output"
+  [ "$status" -eq 0 ]
+  sleep 60
+  # verify mounts
+  run docker exec code bash -c "mount | grep foo/bar"
+  echo "$output"
+  [ "$status" -eq 0 ]
+  run docker exec code bash -c "touch /app/foo/bar/file3"
   echo "$output"
   [ "$status" -eq 0 ]
 }

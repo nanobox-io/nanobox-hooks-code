@@ -13,12 +13,14 @@ mount_nfs() {
     # Is it listening on port 2049
     if nc -q 0 ${1} 2049 < /dev/null &> /dev/null
     then
+      echo "Mounting ${1}:${2} to ${3}"
       mount -t nfs -o rw,intr,proto=tcp,vers=3,nolock "${1}:${2}" "${3}"
     fi
   fi
 }
 
 umount_nfs() {
+  echo "unmounting ${1}"
   umount -f "${1}"
 }
 
@@ -29,9 +31,20 @@ check_nfs_mount() {
   # does it show up in the list of mounts?
   if grep "${server}:${server_path} ${path}" /proc/mounts &> /dev/null
   then
-    # check the health for remounting?
-    sleep 0
+    if timeout 10 df "${path}"
+    then
+      output=$(timeout 10 df "${path}" 2>&1)
+      if [[ "${output}" =~ "Stale file handle" ]]
+      then
+        echo "${server}:${server_path} looks stale"
+        remount_nfs "${server}" "${server_path}" "${path}"
+      fi
+    else
+      echo "${server}:${server_path} timed out while checking"
+      remount_nfs "${server}" "${server_path}" "${path}"
+    fi
   else
+    echo "${server}:${server_path} not mounted to ${path}"
     mount_nfs "${server}" "${server_path}" "${path}"
   fi
 }
