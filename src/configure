@@ -188,6 +188,7 @@ logger.puts("Mounting network shared directories...")
 include Hookit::Helper::NFS
 
 # 8 - Mount network dirs
+nfs_mounts=[]
 (payload[:mounts] || []).each do |m|
 
   m[:shares] = clean_writables(m[:shares])
@@ -214,6 +215,7 @@ include Hookit::Helper::NFS
           action :mount
           not_if  { `mount | grep -c /mnt/#{m[:component]}`.to_i > 0 }
         end
+        nfs_mounts << "#{m[:host]}:/data/var/db/unfs:/mnt/#{m[:component]}"
       end
     end
   rescue Timeout::Error => e
@@ -221,8 +223,6 @@ include Hookit::Helper::NFS
     logger.puts("Could not mount #{m[:component]}.", Nanobox::Logvac::CRIT)
     raise e
   end
-
-
 
   (m[:shares] || []).each do |share|
     # check to see if the mountpoint is an existing file
@@ -277,6 +277,7 @@ include Hookit::Helper::NFS
               action :enable, :mount
               not_if  { `mount | grep -c #{APP_DIR}/#{share}`.to_i > 0 }
             end
+            nfs_mounts << "#{m[:host]}:/data/var/db/unfs/#{share}:#{APP_DIR}/#{share}"
           end
         end
       rescue Timeout::Error => e
@@ -284,6 +285,40 @@ include Hookit::Helper::NFS
         raise e
       end
     end
+  end
+end
+
+if ! nfs_mounts.empty?
+  template "/opt/gonano/bin/checkmounts.sh" do
+    owner 'root'
+    source 'checkmounts.sh.erb'
+    group 'root'
+    mode 0755
+    variables({
+      nfs_mounts: nfs_mounts
+    })
+  end
+
+  directory '/etc/service/checkmounts' do
+    recursive true
+  end
+
+  directory '/etc/service/checkmounts/log' do
+    recursive true
+  end
+
+  hook_file '/etc/service/checkmounts/log/run' do
+    source 'runit/checkmounts-log'
+    mode 0755
+  end
+
+  hook_file '/etc/service/checkmounts/run' do
+    source 'runit/checkmounts'
+    mode 0755
+  end
+
+  service 'checkmounts' do
+    action :enable
   end
 end
 

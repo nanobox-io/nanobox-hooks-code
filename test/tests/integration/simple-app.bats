@@ -182,6 +182,18 @@
   [ "$status" -eq 0 ]
 }
 
+@test "Restart container" {
+  restart_container
+}
+
+@test "check mounts" {
+  sleep 10
+  # verify mounts
+  run docker exec code bash -c "mount | grep foo/bar"
+  echo "$output"
+  [ "$status" -eq 0 ]
+}
+
 @test "Stop container" {
   stop_container
 }

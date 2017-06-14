@@ -1,0 +1,48 @@
+#!/bin/bash
+
+remount_nfs() {
+  umount_nfs "${3}"
+  mount_nfs "${1}" "${2}" "${3}"
+}
+
+mount_nfs() {
+  # check a few things before trying to mount
+  # Is the server pingable
+  if ping -c 1 -W 1 ${1} &> /dev/null
+  then
+    # Is it listening on port 2049
+    if nc -q 0 ${1} 2049 < /dev/null &> /dev/null
+    then
+      mount -t nfs -o rw,intr,proto=tcp,vers=3,nolock "${1}:${2}" "${3}"
+    fi
+  fi
+}
+
+umount_nfs() {
+  umount -f "${1}"
+}
+
+check_nfs_mount() {
+  server=$(echo "${1}" | cut -d: -f1)
+  server_path=$(echo "${1}" | cut -d: -f2)
+  path=$(echo "${1}" | cut -d: -f3)
+  # does it show up in the list of mounts?
+  if grep "${server}:${server_path} ${path}" /proc/mounts &> /dev/null
+  then
+    # check the health for remounting?
+    sleep 0
+  else
+    mount_nfs "${server}" "${server_path}" "${path}"
+  fi
+}
+
+nfs_mounts=(<%= nfs_mounts.join(" ") %>)
+
+while :
+do
+  for i in ${nfs_mounts[@]}
+  do
+    check_nfs_mount "${i}"
+  done
+  sleep 30
+done
