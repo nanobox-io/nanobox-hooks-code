@@ -14,7 +14,8 @@ mount_nfs() {
     if nc -q 0 ${1} 2049 < /dev/null &> /dev/null
     then
       echo "Mounting ${1}:${2} to ${3}"
-      mount -t nfs -o rw,intr,proto=tcp,vers=3,nolock "${1}:${2}" "${3}"
+      mount -t nfs -o retry=5,timeo=300,rw,intr,proto=tcp,vers=3,nolock "${1}:${2}" "${3}"
+      chmod +w "${3}"
     fi
   fi
 }

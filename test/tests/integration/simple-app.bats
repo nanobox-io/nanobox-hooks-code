@@ -105,6 +105,9 @@
   run docker exec code bash -c "touch /app/foo/bar/file1"
   echo "$output"
   [ "$status" -eq 0 ]
+  run docker exec unfs bash -c "[[ -f /data/var/db/unfs/foo/bar/file1 ]]"
+  echo "$output"
+  [ "$status" -eq 0 ]
 
   # verify cron
   run docker exec code bash -c "ls /opt/nanobox"
@@ -207,6 +210,9 @@
   run docker exec code bash -c "touch /app/foo/bar/file2"
   echo "$output"
   [ "$status" -eq 0 ]
+  run docker exec unfs bash -c "[[ -f /data/var/db/unfs/foo/bar/file2 ]]"
+  echo "$output"
+  [ "$status" -eq 0 ]
 }
 
 @test "Restart unfs" {
@@ -223,6 +229,9 @@
   echo "$output"
   [ "$status" -eq 0 ]
   run docker exec code bash -c "touch /app/foo/bar/file3"
+  echo "$output"
+  [ "$status" -eq 0 ]
+  run docker exec unfs bash -c "[[ -f /data/var/db/unfs/foo/bar/file3 ]]"
   echo "$output"
   [ "$status" -eq 0 ]
 }
