@@ -28,6 +28,10 @@ start_container() {
     nanobox/code
 }
 
+restart_container() {
+  docker restart code
+}
+
 stop_container() {
   docker stop code
   docker rm code
