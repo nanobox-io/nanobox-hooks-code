@@ -48,7 +48,7 @@ if payload[:logvac_host]
     variables ({
       uid: payload[:component][:uid],
       logvac: payload[:logvac_host],
-      watches: payload[:log_watches] || {},
+      watches: true_watches,
       start_cmds: start_cmds
     })
   end
