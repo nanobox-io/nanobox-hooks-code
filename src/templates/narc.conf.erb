@@ -53,5 +53,9 @@ stream-priority error
 stream <%= key %>[daemon] /var/log/gonano/<%= key %>/current
 <% end -%>
 <% watches.each do |key, path| -%>
+  <% if path[0] == "/" -%>
 stream <%= key %> <%= path %>
+  <% else -%>
+stream <%= key %> /app/<%= path %>
+  <% end -%>
 <% end -%>
