@@ -55,7 +55,7 @@ module Nanobox
 
     def run_deploy_hook(index, cmd, cuid, muid, type, logger, bubble=false)
       begin
-        Timeout::timeout(payload[:deploy_hook_timeout] || 60) do
+        Timeout::timeout(payload[:hook_timeout] || 300) do
           logger.puts("Starting: #{cmd}", Nanobox::Logvac::INFO, "#{cuid}.#{muid}[#{type}#{index + 1}]")
           execute "#{type}#{index + 1}: #{cmd}" do
             command "siphon --prefix '' -- bash -i -l -c \"#{escape cmd}\""
