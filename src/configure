@@ -30,6 +30,20 @@ end
 
 require 'timeout'
 
+# sanitize log watches ()
+true_watches = {}
+
+(payload[:log_watches] || {}).each do |key, watch|
+  true_path = watch
+  if watch[0] != "/"
+    true_path = "#{APP_DIR}/#{watch}"
+  end
+  true_watches[key] = true_path
+end
+
+puts payload[:log_watches]
+puts true_watches
+
 # 1 - Generate narc.conf
 if payload[:logvac_host]
   logger.puts("Configuring logging...")
@@ -37,7 +51,7 @@ if payload[:logvac_host]
     variables ({
       uid: payload[:component][:uid],
       logvac: payload[:logvac_host],
-      watches: payload[:log_watches] || {},
+      watches: true_watches,
       start_cmds: start_cmds
     })
   end
@@ -67,16 +81,12 @@ end
 logger.puts("Ensuring required directories exist...")
 
 # log_watches
-(payload[:log_watches] || {}).each do |key, watch|
-  true_path = watch
-  if watch[0] != "/"
-    true_path = "#{APP_DIR}/#{watch}"
-  end
-  if not ::File.exists? "#{true_path}"
+true_watches.each do |key, watch|
+  if not ::File.exists? "#{watch}"
     
-    puts "#{true_path}"
-    puts File.expand_path("..", "#{true_path}")
-    parent = File.expand_path("..", "#{true_path}")
+    puts "#{watch}"
+    puts File.expand_path("..", "#{watch}")
+    parent = File.expand_path("..", "#{watch}")
     
     # create the parent directory
     directory parent do
@@ -86,7 +96,7 @@ logger.puts("Ensuring required directories exist...")
     end
     
     # create the log_watch file
-    file "#{true_path}" do
+    file "#{watch}" do
       owner 'gonano'
       group 'gonano'
       mode  0644
@@ -173,13 +183,9 @@ end
 
 # 6 - Unset log_watches
 logger.puts("Making log_watches writable...")
-(payload[:log_watches] || {}).each do |key, watch|
-  true_path = watch
-  if watch[0] != "/"
-    true_path = "#{APP_DIR}/#{watch}"
-  end
+true_watches.each do |key, watch|
   execute "undo read-only on #{watch}" do
-    command "chmod -R +w #{true_path}"
+    command "chmod -R +w #{watch}"
   end
 end
 
