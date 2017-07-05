@@ -31,15 +31,18 @@ end
 require 'timeout'
 
 # sanitize log watches ()
-true_watches = Array.new
+true_watches = {}
 
 (payload[:log_watches] || {}).each do |key, watch|
   true_path = watch
   if watch[0] != "/"
     true_path = "#{APP_DIR}/#{watch}"
   end
-  true_watches.push(true_path)
+  true_watches[key] = true_path
 end
+
+puts payload[:log_watches]
+puts true_watches
 
 # 1 - Generate narc.conf
 if payload[:logvac_host]
