@@ -62,7 +62,6 @@
   echo "$output"
   [ "$status" -eq 0 ]
 
-
   logvac_check_logs "Configuring environment variables"
 
   # verify narc.conf
