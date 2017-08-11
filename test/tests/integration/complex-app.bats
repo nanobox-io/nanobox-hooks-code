@@ -64,7 +64,7 @@
   echo "$output"
   [ "$status" -eq 0 ]
 
-  logvac_check_logs "Starting app: node server.js"
+  logvac_check_logs "Starting app: node ../server.js"
 
   # verify the app is running
   run docker exec code bash -c "curl http://127.0.0.1:8080 2>/dev/null"

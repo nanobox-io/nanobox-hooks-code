@@ -8,6 +8,7 @@
   },
   "logvac_host": "192.168.0.102",
   "config": {},
-  "start": "node server.js",
-  "stop": "echo hello"
+  "start": "node ../server.js",
+  "stop": "echo hello",
+  "cwd": "node_modules"
 }
