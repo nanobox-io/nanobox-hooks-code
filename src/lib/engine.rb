@@ -53,6 +53,54 @@ module Nanobox
       end
     end
 
+    def cwds
+      if payload[:cwd]
+        if payload[:cwd].is_a? Hash
+          payload[:cwd]
+        else # It's a string, so make it a hash
+          {app: payload[:cwd]}
+        end
+      else
+        {}
+      end
+    end
+
+    def stop_cmds
+      if payload[:stop]
+        if payload[:stop].is_a? Hash
+          payload[:stop]
+        else # It's a string, so make it a hash
+          {app: payload[:stop]}
+        end
+      else
+        {}
+      end
+    end
+
+    def stop_timeouts
+      if payload[:stop_timeout]
+        if payload[:stop_timeout].is_a? Hash
+          payload[:stop_timeout]
+        else # It's a string, so make it a hash
+          {app: payload[:stop_timeout]}
+        end
+      else
+        {}
+      end
+    end
+
+    def stop_forces
+      if payload[:stop_force]
+        if payload[:stop_force].is_a? Hash
+          payload[:stop_force]
+        else # It's a string, so make it a hash
+          {app: payload[:stop_force]}
+        end
+      else
+        {}
+      end
+    end
+
     def run_deploy_hook(index, cmd, cuid, muid, type, logger, bubble=false)
       begin
         Timeout::timeout(payload[:hook_timeout] || 300) do

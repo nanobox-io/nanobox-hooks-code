@@ -82,6 +82,8 @@ start_cmds.each do |key, cmd|
     mode 0755
   end
 
+  code_dir = cwds[key] ? "#{APP_DIR}/#{cwds[key]}" : APP_DIR
+
   template "/etc/service/#{key}/run" do
     source 'runit/app.erb'
     variables ({
@@ -89,9 +91,27 @@ start_cmds.each do |key, cmd|
       command: cmd,
       env_dir: ENV_DIR,
       profile_dir: PROFILE_DIR,
-      code_dir: APP_DIR
+      code_dir: code_dir
     })
     mode 0755
+  end
+
+  if stop_cmds[key]
+    directory "/etc/service/#{key}/control" do
+      recursive true
+    end
+
+    template "/etc/service/#{key}/control/d" do
+      source 'runit/d.erb'
+      variables ({
+        key: key,
+        command: stop_cmds[key],
+        env_dir: ENV_DIR,
+        profile_dir: PROFILE_DIR,
+        code_dir: code_dir
+      })
+      mode 0755
+    end
   end
 
   service key do

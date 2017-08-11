@@ -29,7 +29,8 @@ start_cmds.each do |key, cmd|
   logger.puts("Stopping #{key}: #{cmd}...")
 
   service key do
-    action :disable
+    action stop_forces[key] ? :force_stop : :disable
+    timeout stop_timeouts[key]
     not_if { !Dir.exist?("/etc/service/#{key}") }
   end
 

@@ -9,5 +9,6 @@
   "logvac_host": "192.168.0.102",
   "config": {},
   "start": "node server.js",
-  "stop_timeout": 10
+  "stop_timeout": 10,
+  "stop_force": true
 }
