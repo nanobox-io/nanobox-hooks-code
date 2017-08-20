@@ -22,6 +22,12 @@ if [ -n $PATH ]; then
         MYPATH=${PATH}:
 fi
 
+# if the boxfile has set extra_paths, then let's make sure
+# those are added to the PATH as well
+if [[ -n $EXTRA_PATHS ]]; then
+  MYPATH=${MYPATH}${EXTRA_PATHS}:
+fi
+
 # set the defaults
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
