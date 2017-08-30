@@ -112,7 +112,10 @@ end
       group 'gonano'
       recursive true
     end
+  else
+    execute "chown -R gonano #{APP_DIR}/#{dir}"
   end
+
 end
 
 # writable_files
@@ -122,6 +125,8 @@ end
       owner 'gonano'
       group 'gonano'
     end
+  else
+    execute "chown -R gonano #{APP_DIR}/#{file}"
   end
 end
 
