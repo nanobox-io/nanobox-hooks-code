@@ -4,6 +4,7 @@
 #
 # 1 - fetch deploy env
 # 2 - fetch live source code
+# 3 - run ldconfig
 
 # hookit is installed as a bundled app, so we need bundler to load it for us
 $:.unshift  '/opt/gonano/hookit/vendor/bundle'
@@ -66,4 +67,12 @@ end
 
 execute "ensure gonano owns code" do
   command "chown -R gonano:gonano #{APP_DIR}"
+end
+
+# 3 - Run ldconfig
+
+execute "ldconfig" do
+  command <<-EOF
+    ldconfig
+  EOF
 end
