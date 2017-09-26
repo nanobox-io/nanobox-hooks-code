@@ -2,15 +2,16 @@
 
 # Configure the web or worker environment to run the app
 #
-# 1 - Generate narc.conf
-# 2 - Set all environment variables
-# 3 - Run transforms
-# 4 - Convert to read-only
-# 5 - Unset 'writable_dirs' and 'writable_files' from read-only
-# 6 - Unset log_watches from read-only
-# 7 - Mount network_dirs
-# 8 - Mount network_dirs
-# 7 - Set up cron
+#  1 - Generate narc.conf
+#  2 - Set all environment variables
+#  3 - Run transforms
+#  4 - Convert to read-only
+#  5 - Unset 'writable_dirs' and 'writable_files' from read-only
+#  6 - Unset log_watches from read-only
+#  7 - Mount network_dirs
+#  8 - Mount network_dirs
+#  9 - Set up cron
+# 10 - Set up hosts file
 
 # hookit is installed as a bundled app, so we need bundler to load it for us
 $:.unshift  '/opt/gonano/hookit/vendor/bundle'
@@ -362,4 +363,11 @@ if payload[:member][:uid] == 1 && ! payload[:cron_jobs].nil?
     variables ({ crons: payload[:cron_jobs] })
   end
 
+end
+
+if ! payload[:dns_entries].nil?
+  template '/etc/hosts' do
+    mode 0644
+    variables ({ hosts: payload[:dns_entries] })
+  end
 end
