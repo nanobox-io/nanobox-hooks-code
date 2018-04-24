@@ -351,7 +351,7 @@ if payload[:member][:uid] == 1 && ! payload[:cron_jobs].nil?
         component_uid: payload[:component][:uid],
         member_uid: payload[:member][:uid],
         logvac_host: payload[:logvac_host],
-        command: escape_shell_string(job[:command]),
+        command: job[:command],
         cron_id: id + 1,
         app_dir: APP_DIR
       })
