@@ -157,7 +157,7 @@ end
 # 2.9 - Convert to writable
 logger.puts("Making code writable...")
 execute 'unlock all the files' do
-  command "find #{APP_DIR} -xdev -exec chown a+w {} \;"
+  command "find #{APP_DIR} -xdev -exec chown a+w \{\} \;"
 end
 
 # 3 - Run any transformations
@@ -169,7 +169,7 @@ end
 # 4 - Convert to read-only
 logger.puts("Making code read-only...")
 execute 'lock down all the files' do
-  command "find #{APP_DIR} -xdev -exec chown a-w {} \;"
+  command "find #{APP_DIR} -xdev -exec chown a-w \{\} \;"
 end
 
 # 5 - Unset writable dirs
