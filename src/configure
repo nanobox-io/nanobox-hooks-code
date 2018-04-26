@@ -256,10 +256,11 @@ nfs_mounts=[]
         end
 
         # chwon the file
-        execute "chmod copied file" do
-          command "chmod u+w /mnt/#{m[:component]}/#{share}"
-          user 'gonano'
-        end
+        # This might take some time?
+        # execute "chmod copied file" do
+        #   command "chmod u+w /mnt/#{m[:component]}/#{share}"
+        #   user 'gonano'
+        # end
 
         # create a link back to the network-backed file
         link "#{APP_DIR}/#{share}" do
@@ -278,10 +279,11 @@ nfs_mounts=[]
       end
 
       # chwon the file
-      execute "chmod shared folder" do
-        command "chmod -R u+w /mnt/#{m[:component]}/#{share}"
-        user 'gonano'
-      end
+      # Don't do this, it's really slow across a mount, maybe implement this in some nfs hooks
+      # execute "chmod shared folder" do
+      #   command "chmod -R u+w /mnt/#{m[:component]}/#{share}"
+      #   user 'gonano'
+      # end
 
       # Create mountpoint
       directory "#{APP_DIR}/#{share}" do
