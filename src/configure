@@ -84,18 +84,18 @@ logger.puts("Ensuring required directories exist...")
 # log_watches
 true_watches.each do |key, watch|
   if not ::File.exists? "#{watch}"
-    
+
     puts "#{watch}"
     puts File.expand_path("..", "#{watch}")
     parent = File.expand_path("..", "#{watch}")
-    
+
     # create the parent directory
     directory parent do
       owner 'gonano'
       group 'gonano'
       recursive true
     end
-    
+
     # create the log_watch file
     file "#{watch}" do
       owner 'gonano'
@@ -365,6 +365,7 @@ if payload[:member][:uid] == 1 && ! payload[:cron_jobs].nil?
         component_uid: payload[:component][:uid],
         member_uid: payload[:member][:uid],
         logvac_host: payload[:logvac_host],
+        name: job[:id],
         command: job[:command],
         cron_id: id + 1,
         app_dir: APP_DIR
