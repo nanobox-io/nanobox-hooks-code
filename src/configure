@@ -386,3 +386,31 @@ if ! payload[:dns_entries].nil?
     variables ({ hosts: payload[:dns_entries] })
   end
 end
+
+if payload[:env] and payload[:env][:OUTBOUND_PROXY] and payload[:env][:OUTBOUND_PROXY] == 'true' and payload[:env][:MESH_DATA_PORTAL_HOST]
+  # set up outbound proxy
+  file "/etc/nanoinit.d/default_route" do
+    content <<-EOF
+#!/bin/bash
+case $1 in
+  start)
+    ip route del default
+    ip route add default via #{payload[:env][:MESH_DATA_PORTAL_HOST]}
+    ;;
+  stop)
+    ;;
+  *)
+    echo "$0 start|stop"
+    exit 1
+    ;;
+esac
+EOF
+    mode 0755
+  end
+  # run outbound proxy script
+  execute "bring up default route" do
+    command <<-EOF
+      /etc/nanoinit.d/default_route start
+    EOF
+  end
+end
