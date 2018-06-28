@@ -386,7 +386,7 @@ if ! payload[:dns_entries].nil?
   end
 end
 
-if payload[:env] and payload[:env][:OUTBOUND_PROXY] and payload[:env][:OUTBOUND_PROXY] == 'true'
+if payload[:env] and payload[:env][:OUTBOUND_PROXY] and payload[:env][:OUTBOUND_PROXY] == 'true' and payload[:env][:MESH_DATA_PORTAL_HOST]
   # set up outbound proxy
   file "/etc/nanoinit.d/default_route" do
     content <<-EOF
